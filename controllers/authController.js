@@ -7,30 +7,28 @@ const ApiResponse = require('../lib/apiResponse');
 const { signToken } = require('../lib/utils');
 
 async function register(req, res){
-    const { 
-        email, 
-        password, 
-        businessName,
-        role,
-        isActive 
-    } = req.body
+    try {
+        const { 
+            email, 
+            password, 
+            businessName,
+            role,
+            isActive 
+        } = req.body
+        
+        if (!password || !businessName) 
+            return ApiResponse.badRequest(res, 'Password and Business Name must be at least one character')
+        if (!emailValidator.validate(email)) 
+            return ApiResponse.badRequest(res, 'Invalid Email')
+        if (!roles.includes(role)) 
+            return ApiResponse.badRequest(res, 'Role does not exist')
+        const isDuplicated = await User.findOne({email: email})
+        if (isDuplicated) 
+            return ApiResponse.badRequest(res, 'User with this email already exists')
 
+        const biggestId = await User.find().sort({userId: -1}).limit(1)
+        const hashedPassword = await bcrypt.hash(password, saltRounds)
     
-    try {
-        if (!emailValidator.validate(email)) throw new Error('Invalid Email')
-        const uniqueEmail = await User.findOne({email: email})
-        if (uniqueEmail) throw new Error('User with this email already exists')
-        if (password == '') throw new Error('Password must be at least one character')
-        if (businessName == '') throw new Error('Business must be at least one character')
-        if (!roles.includes(role)) throw new Error('Role does not exist')
-    } catch (error) {
-        return res.status(400).send(ApiResponse.badRequest(error.message))
-    }
-
-    const biggestId = await User.find().sort({userId: -1}).limit(1)
-    const hashedPassword = await bcrypt.hash(password, saltRounds)
-
-    try {
         const user = new User({
             userId: biggestId[0] ? biggestId[0].userId+1 : 0,
             email: email,
@@ -42,32 +40,36 @@ async function register(req, res){
         
         await user.save()
 
-        const {password, ...userData} = user.toObject();
+        const {password:_, ...userData} = user.toObject();
 
-        res.status(201).send(ApiResponse.created('User created', {
+        return res.status(201).send(ApiResponse.created('User created', {
             user: userData,
             token: signToken(userData)
         }))
     } catch (error) {
+        console.error(error)
         return res.status(500).send(ApiResponse.failure('Failed to create user'))
     }
 }
 
 async function login(req, res){
-    const {email, password} = req.body
-
-    const user = await User.findOne({email: email})
-    
     try {
-        if (!user) throw new Error(`User doesn't exist`)
-        if (!bcrypt.compareSync(password, user.password)) throw new Error('Wrong password')
-    } catch (error) {
-        return res.status(400).send(ApiResponse.badRequest(error.message))        
-    }
+        const {email, password} = req.body
+        if (!email || !password) return ApiResponse.badRequest(res, 'Email and password are required')
 
-    res.send(ApiResponse.success('Successfully logged in', {
-        token: signToken({userId: user.userId, email: user.email})
-    }))
+        const user = await User.findOne({email: email})
+        if (!user) return ApiResponse.badRequest(res, `User doesn't exist`)
+
+        const isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch) return ApiResponse.unauthorized(res, `Wrong password`)
+            
+        return res.send(ApiResponse.success('Successfully logged in', {
+            token: signToken({userId: user.userId, email: user.email})
+        }))
+    } catch (error) {
+        console.error(error)
+        return res.status(500).send(ApiResponse.failure('Login failed'))
+    }
 }
 
 module.exports = { register, login}

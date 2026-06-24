@@ -8,7 +8,7 @@ function auth(req, res, next){
         const user = verifyToken(token)
         req.user = user
     } catch (error) {
-        return res.status(401).send(ApiResponse.unauthorized('User unathorized'))
+        return ApiResponse.unauthorized(res, 'User unathorized, invalid token')
     }
     
     next()
