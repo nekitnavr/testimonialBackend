@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const express = require('express')
 const authRouter = require('./routes/authRouter')
 const testimonialRouter = require('./routes/testimonialRouter')
+const auth = require('./middleware/auth')
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(()=>{
