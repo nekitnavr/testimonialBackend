@@ -48,7 +48,7 @@ async function register(req, res){
         }))
     } catch (error) {
         console.error(error)
-        return res.status(500).send(ApiResponse.failure('Failed to create user'))
+        return ApiResponse.failure(res, 'Failed to create user')
     }
 }
 
@@ -68,7 +68,7 @@ async function login(req, res){
         }))
     } catch (error) {
         console.error(error)
-        return res.status(500).send(ApiResponse.failure('Login failed'))
+        return ApiResponse.failure(res, 'Login failed')
     }
 }
 
