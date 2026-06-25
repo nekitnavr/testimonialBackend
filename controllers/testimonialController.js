@@ -42,7 +42,7 @@ async function createTestimonial(req, res){
         
         await testimonial.save()
         
-        return res.send('Monial')
+        return res.send(ApiResponse.success('Testimonial created'))
     } catch (error) {
         console.error(error)
         return ApiResponse.failure(res, 'Failed to create testimonial')
@@ -50,33 +50,30 @@ async function createTestimonial(req, res){
 }
 
 async function getTestimonials(req, res){
-    // Возврат отзывов только авторизованного пользователя
-    // Исключение мягко удалённых записей (isDeleted: false)
-    // Поддержка query-параметров:
-    // status — фильтр по статусу (например, ?status=completed)
-    // page и limit — пагинация (по умолчанию: page 1, limit 10)
-    // sort — поле сортировки (по умолчанию: createdAt, по убыванию)
     try {
         const {status, sort} = req.query
+        if (req.query.page < 1) return ApiResponse.badRequest(res, 'Page must be greater than 0')
+        if (req.query.limit < 1) return ApiResponse.badRequest(res, 'Limit must greater than 0')
+        if (!statuses.includes(status)) return ApiResponse.badRequest(res, `Status doesn't exist`)
+        
         const page = req.query.page ? parseInt(req.query.page) : 1
         const limit = req.query.limit ? parseInt(req.query.limit) : 10
-        
-        if (!statuses.includes(status)) return ApiResponse.badRequest(res, `Status doesn't exist`)
-
         const toSkip = (page-1)*limit
-        const total = await Testimonial.countDocuments()
-        let testimonials = await Testimonial.find({
-                userId: req.user.userId,
-                isDeleted: false,
-                status: status
-            })
+        const filter = {
+            userId: req.user.userId,
+            isDeleted: false,
+            status: status
+        }
+
+        let testimonials = await Testimonial
+            .find(filter)
             .skip(toSkip)
             .sort({
                 [sort ? sort : 'createdAt'] : -1
             })
             .limit(limit)
+        const total = await Testimonial.countDocuments(filter)
 
-        
         let response = ApiResponse.success(`User's testimonials`, testimonials)
         response.pagination = {
             "total": total,
@@ -84,6 +81,7 @@ async function getTestimonials(req, res){
             "limit": limit,
             "pages": Math.ceil(total/limit)
         }
+
         return res.status(200).send(response)
     } catch (error) {
         console.error(error)
@@ -91,4 +89,30 @@ async function getTestimonials(req, res){
     }
 }
 
-module.exports = {createTestimonial, getTestimonials}
+async function updateStatus(req, res) {
+    try {
+        const {status} = req.body
+        const {testimonialId} = req.params
+        
+        if(!statuses.includes(status)) return ApiResponse.badRequest(res, 'Status invalid')
+        if(!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')
+
+        const testimonial = await Testimonial.findOne({testimonialId: testimonialId})
+        const canTransition = (statuses.indexOf(status)-statuses.indexOf(testimonial.status)) == 1
+        if (!canTransition) {
+            return ApiResponse.badRequest(res, `Cannot transition from ${testimonial.status} to ${status}`)
+        }
+        
+        testimonial.status = status
+        if (status == 'shared') testimonial.sharedAt = Date.now()
+        await testimonial.save()
+        
+        
+        return res.send(ApiResponse.success('Testimonial status updated'))
+    } catch (error) {
+        console.error(error)
+        return ApiResponse.failure(res, 'Failed to change status')
+    }
+}
+
+module.exports = {createTestimonial, getTestimonials, updateStatus}
