@@ -6,11 +6,6 @@ const { statuses, allowedChannels } = require('../lib/constants')
 const emailValidator = require('email-validator')
 
 async function createTestimonial(req, res){
-    // Авто-генерация testimonialId через uuid
-    // Установка userId из JWT токена авторизованного пользователя
-    // Валидация обязательных полей: customerName
-    // Начальный статус: "draft"
-
     try {
         const {
             customerName,
@@ -138,13 +133,6 @@ async function deleteTestimonial(req, res){
 }
 
 async function shareTestimonial(req, res){
-    // POST /api/testimonials/:testimonialId/share
-    // Принимает { "channels": ["email", "facebook"] }
-    // Валидация каналов из допустимого списка: ["email", "sms", "facebook", "instagram"]
-    // Добавление каналов в sharedChannels (без дубликатов)
-    // Авто-переход статуса в "shared", если текущий статус "completed"
-    // Установка sharedAt, если ещё не установлено
-
     try {
         const {testimonialId} = req.params
         if (!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')

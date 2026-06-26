@@ -8,4 +8,7 @@ router.patch('/testimonials/:testimonialId/status', testimonialController.update
 router.delete('/testimonials/:testimonialId', testimonialController.deleteTestimonial)
 router.post('/testimonials/:testimonialId/share', testimonialController.shareTestimonial)
 
+router.get('/api/testimonials/settings', (req,res)=>{res.send('Zaglushka')})
+router.post('/api/testimonials/settings	', (req,res)=>{res.send('Zaglushka')})
+
 module.exports = router
