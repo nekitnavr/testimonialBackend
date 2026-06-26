@@ -4,6 +4,7 @@ const ApiResponse = require('../lib/apiResponse')
 const uuid = require('uuid')
 const { statuses, allowedChannels } = require('../lib/constants')
 const emailValidator = require('email-validator')
+const TestimonialSettings = require('../models/testimonialSettings')
 
 async function createTestimonial(req, res){
     try {
@@ -163,10 +164,54 @@ async function shareTestimonial(req, res){
     }
 }
 
+async function upsertTestimonialSettings(req, res){
+    try {
+        const allowedFields = [
+            'isEnabled',
+            'defaultVideoLength',
+            'videoLengthOptions',
+            'questionnaire',
+            'sendingOptions',
+            'thankYouMessage',
+            'contactConsent',
+        ]
+        
+        let updateData = {}
+        allowedFields.forEach(field=>{
+            if(req.body.hasOwnProperty(field)) updateData[field] = req.body[field]
+        })
+        
+        await TestimonialSettings.findOneAndUpdate({
+            userId: req.user.userId
+        }, updateData, {upsert: true})
+        
+        return res.send(ApiResponse.success('Changed settings successfully'))
+    } catch (error) {
+        console.error(error)
+        return ApiResponse.failure(res, 'Failed to change settings')
+    }
+}
+
+async function getTestimonialSettings(req, res){
+    try {
+        const settings = await TestimonialSettings.findOne({userId: req.user.userId})
+        if (settings) {
+            return res.send(ApiResponse.success('Fetched setttings successfully', {settings: settings}))
+        }else{
+            return res.send(ApiResponse.success('Fetched setttings successfully', null))
+        }
+    } catch (error) {
+        console.error(error)
+        return ApiResponse.failure(res, 'Failed to fetch settings')
+    }
+}
+
 module.exports = {
     createTestimonial, 
     getTestimonials, 
     updateStatus, 
     deleteTestimonial, 
-    shareTestimonial
+    shareTestimonial,
+    upsertTestimonialSettings,
+    getTestimonialSettings
 }
