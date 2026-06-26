@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Testimonial = require('../models/testimonial')
 const ApiResponse = require('../lib/apiResponse')
 const uuid = require('uuid')
-const { statuses } = require('../lib/constants')
+const { statuses, allowedChannels } = require('../lib/constants')
 const emailValidator = require('email-validator')
 
 async function createTestimonial(req, res){
@@ -98,9 +98,8 @@ async function updateStatus(req, res) {
         if(!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')
 
         const testimonial = await Testimonial.findOne({testimonialId: testimonialId})
-        if (!testimonial) return ApiResponse.notFound(res, 'Testimonial not found')
-        if (testimonial.userId != req.user.userId) 
-            return ApiResponse.forbidden(res, `Can't edit other users' testimonials`)
+        if (!testimonial || testimonial.isDeleted) return ApiResponse.notFound(res, 'Testimonial not found')
+        if (testimonial.userId != req.user.userId) return ApiResponse.forbidden(res, `Can't edit other users' testimonials`)
 
         const canTransition = (statuses.indexOf(status)-statuses.indexOf(testimonial.status)) == 1
         if (!canTransition) {
@@ -138,4 +137,48 @@ async function deleteTestimonial(req, res){
     }
 }
 
-module.exports = {createTestimonial, getTestimonials, updateStatus, deleteTestimonial}
+async function shareTestimonial(req, res){
+    // POST /api/testimonials/:testimonialId/share
+    // Принимает { "channels": ["email", "facebook"] }
+    // Валидация каналов из допустимого списка: ["email", "sms", "facebook", "instagram"]
+    // Добавление каналов в sharedChannels (без дубликатов)
+    // Авто-переход статуса в "shared", если текущий статус "completed"
+    // Установка sharedAt, если ещё не установлено
+
+    try {
+        const {testimonialId} = req.params
+        if (!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')
+
+        const testimonial = await Testimonial.findOne({testimonialId: testimonialId})
+        if (!testimonial || testimonial.isDeleted) return ApiResponse.notFound(res, 'Testimonial not found')
+        if (testimonial.userId != req.user.userId) return ApiResponse.forbidden(res, `Can't share other users' testimonials`)
+
+        let {channels} = req.body
+        if (Array.isArray(channels)){
+            channels = [...new Set(channels)]
+            const allAllowed = channels.every(channel=>allowedChannels.includes(channel))
+            if (!allAllowed) return ApiResponse.badRequest(res, 'Invalid sharing channels')
+        } else {
+            return ApiResponse.badRequest(res, 'Channels must be an array')
+        }
+
+        const mergedChannels = [...new Set([...testimonial.sharedChannels, ...channels])]
+        testimonial.sharedChannels = mergedChannels
+        if (testimonial.status == 'completed') testimonial.status = 'shared'
+        if (!testimonial.sharedAt) testimonial.sharedAt = new Date()
+        await testimonial.save()
+        
+        return res.send(ApiResponse.success('Testimonial shared'))
+    } catch (error) {
+        console.error(error)
+        return ApiResponse.failure(res, 'Failed to share testimonial')
+    }
+}
+
+module.exports = {
+    createTestimonial, 
+    getTestimonials, 
+    updateStatus, 
+    deleteTestimonial, 
+    shareTestimonial
+}
