@@ -195,11 +195,11 @@ async function upsertTestimonialSettings(req, res){
 async function getTestimonialSettings(req, res){
     try {
         const settings = await TestimonialSettings.findOne({userId: req.user.userId})
-        if (settings) {
-            return res.send(ApiResponse.success('Fetched setttings successfully', {settings: settings}))
-        }else{
-            return res.send(ApiResponse.success('Fetched setttings successfully', null))
-        }
+        
+        let data = {settings: settings}
+        if (!settings) data = null
+
+        return res.send(ApiResponse.success('Fetched setttings successfully', data))
     } catch (error) {
         console.error(error)
         return ApiResponse.failure(res, 'Failed to fetch settings')
