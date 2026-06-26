@@ -98,15 +98,18 @@ async function updateStatus(req, res) {
         if(!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')
 
         const testimonial = await Testimonial.findOne({testimonialId: testimonialId})
+        if (!testimonial) return ApiResponse.notFound(res, 'Testimonial not found')
+        if (testimonial.userId != req.user.userId) 
+            return ApiResponse.forbidden(res, `Can't edit other users' testimonials`)
+
         const canTransition = (statuses.indexOf(status)-statuses.indexOf(testimonial.status)) == 1
         if (!canTransition) {
             return ApiResponse.badRequest(res, `Cannot transition from ${testimonial.status} to ${status}`)
         }
         
         testimonial.status = status
-        if (status == 'shared') testimonial.sharedAt = Date.now()
+        if (status == 'shared') testimonial.sharedAt = new Date()
         await testimonial.save()
-        
         
         return res.send(ApiResponse.success('Testimonial status updated'))
     } catch (error) {
@@ -115,4 +118,24 @@ async function updateStatus(req, res) {
     }
 }
 
-module.exports = {createTestimonial, getTestimonials, updateStatus}
+async function deleteTestimonial(req, res){
+    try {
+        const {testimonialId} = req.params
+        if (!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')
+
+        const testimonial = await Testimonial.findOne({testimonialId: testimonialId})
+        if (!testimonial || testimonial.isDeleted) return ApiResponse.notFound(res, 'Testimonial not found')
+        if (testimonial.userId != req.user.userId) return ApiResponse.forbidden(res, `Can't delete other users' testimonials`)
+
+        testimonial.isDeleted = true
+        testimonial.deletedAt = new Date()
+        await testimonial.save()
+        
+        return res.send(ApiResponse.success('Testimonial deleted'))
+    } catch (error) {
+        console.error(error)
+        return ApiResponse.failure(res, 'Failed to delete testimonial')
+    }
+}
+
+module.exports = {createTestimonial, getTestimonials, updateStatus, deleteTestimonial}

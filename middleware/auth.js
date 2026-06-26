@@ -2,7 +2,9 @@ const ApiResponse = require("../lib/apiResponse")
 const { verifyToken } = require("../lib/utils")
 
 function auth(req, res, next){
-    const token = req.headers.authorization.split(' ')[1]
+    const header = req.headers.authorization
+    if (!header) return ApiResponse.badRequest(res, 'Auth header required')
+    const token = header.split(' ')[1]
 
     try {
         const user = verifyToken(token)
