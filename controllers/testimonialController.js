@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Testimonial = require('../models/testimonial')
 const ApiResponse = require('../lib/apiResponse')
 const uuid = require('uuid')
-const { statuses, allowedChannels } = require('../lib/constants')
+const { statuses, allowedChannels, allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
 const emailValidator = require('email-validator')
 const TestimonialSettings = require('../models/testimonialSettings')
 
@@ -21,7 +21,7 @@ async function createTestimonial(req, res) {
         if (!customerName) return ApiResponse.badRequest(res, 'Customer name required')
         if (customerEmail && !emailValidator.validate(customerEmail)) return ApiResponse.badRequest(res, 'Invalid email format')
         if (customerPhone && customerPhone.length < 9) return ApiResponse.badRequest(res, 'Phone numbers must be at lest 9 digits')
-        if (rating && rating < 1 && rating > 5) return ApiResponse.badRequest(res, 'Ratings must be 1 to 5')
+        if (rating && (rating < 1 || rating > 5)) return ApiResponse.badRequest(res, 'Ratings must be 1 to 5')
 
         const testimonial = new Testimonial({
             testimonialId: uuid.v4(),
@@ -35,10 +35,9 @@ async function createTestimonial(req, res) {
             status: 'draft',
             consentGiven: Boolean(consentGiven)
         })
-
         await testimonial.save()
 
-        return res.send(ApiResponse.success('Testimonial created'))
+        return ApiResponse.created(res, 'Testimonial created')
     } catch (error) {
         console.error(error)
         return ApiResponse.failure(res, 'Failed to create testimonial')
@@ -82,6 +81,58 @@ async function getTestimonials(req, res) {
     } catch (error) {
         console.error(error)
         return ApiResponse.failure(res, 'Failed to fetch testimonials')
+    }
+}
+
+async function getTestimonial(req, res){
+    try {
+        const { testimonialId } = req.params
+        if (!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')
+
+        const testimonial = await Testimonial.findOne({testimonialId: testimonialId})
+        if (!testimonial || testimonial.isDeleted) return ApiResponse.notFound(res, 'Testimonial not found')
+
+        return res.send(ApiResponse.success('Found testimonial', testimonial))
+    } catch (error) {
+        console.error(error)
+        return ApiResponse.failure(res, 'Failed to fetch testimonial')
+    }
+}
+
+async function updateTestimonial(req,res){
+    try {
+        const { testimonialId } = req.params
+        if (!testimonialId) return ApiResponse.badRequest(res, 'Testimonial Id required')
+
+        let testimonial = await Testimonial.findOne({testimonialId: testimonialId})
+        if (!testimonial || testimonial.isDeleted) return ApiResponse.notFound(res, 'Testimonial not found')
+        if (testimonial.userId != req.user.userId) return ApiResponse.forbidden(res, `Can't edit other users' testimonials`)
+
+        const {
+            customerName,
+            customerEmail,
+            customerPhone,
+            videoUrl,
+            rating,
+            text,
+            consentGiven,
+        } = req.body
+
+        if (customerEmail && !emailValidator.validate(customerEmail)) return ApiResponse.badRequest(res, 'Invalid email format')
+        if (customerPhone && customerPhone.length < 9) return ApiResponse.badRequest(res, 'Phone numbers must be at lest 9 digits')
+        if (rating && (rating < 1 || rating > 5)) return ApiResponse.badRequest(res, 'Ratings must be 1 to 5')
+
+        let updateData = {}
+        allowedTestimonialFields.forEach(field => {
+            if (req.body.hasOwnProperty(field)) updateData[field] = req.body[field]
+        })
+        Object.assign(testimonial, updateData)
+        await testimonial.save()
+
+        return res.send(ApiResponse.success('Testimonial updated'))
+    } catch (error) {
+        console.error(error)
+        return ApiResponse.failure(res, 'Failed to update testimonial')
     }
 }
 
@@ -166,24 +217,21 @@ async function shareTestimonial(req, res) {
 
 async function upsertTestimonialSettings(req, res) {
     try {
-        const allowedFields = [
-            'isEnabled',
-            'defaultVideoLength',
-            'videoLengthOptions',
-            'questionnaire',
-            'sendingOptions',
-            'thankYouMessage',
-            'contactConsent',
-        ]
-
         let updateData = {}
-        allowedFields.forEach(field => {
+        allowedTestimonialSettings.forEach(field => {
             if (req.body.hasOwnProperty(field)) updateData[field] = req.body[field]
         })
 
-        await TestimonialSettings.findOneAndUpdate({
-            userId: req.user.userId
-        }, updateData, { upsert: true })
+        let settings = await TestimonialSettings.findOne({ userId: req.user.userId })
+        if (!settings){
+            await new TestimonialSettings({
+                userId: req.user.userId,
+                ...updateData
+            }).save()
+        }else{
+            Object.assign(settings, updateData)
+            await settings.save()
+        }
 
         return res.send(ApiResponse.success('Changed settings successfully'))
     } catch (error) {
@@ -208,27 +256,6 @@ async function getTestimonialSettings(req, res) {
 
 async function getTestimonialAnalytics(req, res) {
     try {
-        // Поддержка опциональных query-параметров: startDate, endDate (ISO date строки)
-        // Исключить мягко удалённые отзывы
-        // Использовать MongoDB aggregation pipeline для byStatus и averageRating
-        // "data": {
-        //     "overview": {
-        //       "total": 50,
-        //       "byStatus": {
-        //           "draft": 5,
-        //           "recording": 3,
-        //           "processing": 2,
-        //           "completed": 25,
-        //           "shared": 15
-        //       },
-        //       "averageRating": 4.2
-        //     },
-        //     "period": {
-        //       "startDate": "2025-01-01T00:00:00.000Z",
-        //       "endDate": "2025-12-31T23:59:59.999Z"
-        //     }
-        // }
-
         const startDate = req.query.startDate ? new Date(req.query.startDate) : null
         const endDate = req.query.endDate ? new Date(req.query.endDate) : null
         if (startDate && isNaN(startDate)) return ApiResponse.badRequest(res, 'Invalid start date format')
@@ -239,32 +266,34 @@ async function getTestimonialAnalytics(req, res) {
             createdAt: {
                 $gte: startDate ? startDate : new Date(0),
                 $lte: endDate ? endDate : new Date()
-            }
+            },
+            userId: req.user.userId
         }
         
+        const overview = await Testimonial.aggregate([
+            { $match: filter },
+            { $group: {
+                _id: '$status',
+                count: {$sum: 1},
+                totalRating: { $sum: '$rating' }
+            }},
+            { $group: {
+                _id: null,
+                byStatus: {
+                    $push: { k: '$_id', v: '$count' }
+                },
+                total: { $sum: '$count' },
+                totalRating: { $sum: '$totalRating' }
+            }},
+            { $project: {
+                _id: 0,
+                total: 1,
+                byStatus: { $arrayToObject: '$byStatus' },
+                avgRating: {$divide: ["$totalRating", "$total"]}
+            }}
+        ])
         const data = {
-            overview: await Testimonial.aggregate([
-                { $match: filter },
-                { $group: {
-                    _id: '$status',
-                    count: {$sum: 1},
-                    totalRating: { $sum: '$rating' }
-                }},
-                { $group: {
-                    _id: null,
-                    byStatus: {
-                        $push: { k: '$_id', v: '$count' }
-                    },
-                    total: { $sum: '$count' },
-                    totalRating: { $sum: '$totalRating' }
-                }},
-                { $project: {
-                    _id: 0,
-                    total: 1,
-                    byStatus: { $arrayToObject: '$byStatus' },
-                    avgRating: {$divide: ["$totalRating", "$total"]}
-                }}
-            ]),
+            overview: overview[0],
             period: { startDate: startDate, endDate: endDate }
         }
 
@@ -278,6 +307,8 @@ async function getTestimonialAnalytics(req, res) {
 module.exports = {
     createTestimonial,
     getTestimonials,
+    getTestimonial,
+    updateTestimonial,
     updateStatus,
     deleteTestimonial,
     shareTestimonial,

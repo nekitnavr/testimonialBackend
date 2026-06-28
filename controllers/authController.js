@@ -38,10 +38,10 @@ async function register(req, res){
 
         const {password:_, ...userData} = user.toObject();
 
-        return res.status(201).send(ApiResponse.created('User created', {
+        return ApiResponse.created(res, 'User created', {
             user: userData,
             token: signToken(userData)
-        }))
+        })
     } catch (error) {
         console.error(error)
         return ApiResponse.failure(res, 'Failed to create user')
