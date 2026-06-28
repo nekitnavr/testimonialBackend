@@ -16,15 +16,11 @@ async function register(req, res){
             isActive 
         } = req.body
         
-        if (!password || !businessName) 
-            return ApiResponse.badRequest(res, 'Password and Business Name must be at least one character')
-        if (!emailValidator.validate(email)) 
-            return ApiResponse.badRequest(res, 'Invalid Email')
-        if (!roles.includes(role)) 
-            return ApiResponse.badRequest(res, 'Role does not exist')
-        const isDuplicated = await User.findOne({email: email})
-        if (isDuplicated) 
-            return ApiResponse.badRequest(res, 'User with this email already exists')
+        if (!password || !businessName) return ApiResponse.badRequest(res, 'Password and Business Name must be at least one character')
+        if (!emailValidator.validate(email)) return ApiResponse.badRequest(res, 'Invalid Email')
+        if (!roles.includes(role)) return ApiResponse.badRequest(res, 'Role does not exist')
+        const isDuplicated = await User.exists({email: email})
+        if (isDuplicated) return ApiResponse.badRequest(res, 'User with this email already exists')
 
         const biggestId = await User.find().sort({userId: -1}).limit(1)
         const hashedPassword = await bcrypt.hash(password, saltRounds)

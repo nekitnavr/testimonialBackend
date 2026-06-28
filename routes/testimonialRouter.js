@@ -10,6 +10,7 @@ router.post('/:testimonialId/share', testimonialController.shareTestimonial)
 
 router.get('/settings', testimonialController.getTestimonialSettings)
 router.post('/settings', testimonialController.upsertTestimonialSettings)
-router.get('/analytics', testimonialController.upsertTestimonialSettings)
+
+router.get('/analytics', testimonialController.getTestimonialAnalytics)
 
 module.exports = router
