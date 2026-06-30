@@ -20,6 +20,7 @@
 
 ### User
 **POST** `/api/auth/register`	Регистрация нового пользователя.   
+Принимает `email`, `password`, `businessName`, `role`, `isActive` в теле.
 Пример запроса и ответа:
 ```json
 POST http://localhost:3000/api/auth/register
@@ -54,7 +55,7 @@ content-type: application/json
   }
 }
 ```  
-**POST** `/api/auth/login` Авторизация и получение JWT токена. Принимает  `email` и `password` в теле запроса 
+**POST** `/api/auth/login` Авторизация и получение JWT токена.  Принимает  `email` и `password` в теле запроса 
 Пример ответа:
 ```json
 {
@@ -68,7 +69,14 @@ content-type: application/json
 ```
 
 ### Testimonial
-**POST**	`/api/testimonials`	                    Создать новый отзыв  
+**POST**	`/api/testimonials`	                    Создать новый отзыв.  
+Принимает `customerName`,
+          `customerEmail`,
+          `customerPhone`,
+          `videoUrl`,
+          `rating`,
+          `text`,
+          `consentGiven` в теле.  
 Пример запроса:
 ```json
 POST http://localhost:3000/api/testimonials HTTP/1.1
@@ -86,14 +94,15 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlb
 }
 ```
 
-**GET**	    `/api/testimonials`	                    Список отзывов авторизованного пользователя  
+**GET**	    `/api/testimonials`	                    Список отзывов авторизованного пользователя.
+Принимает `status`, `page`, `limit` и `sort` в query параметрах.    
 Пример запроса и ответа:
 ```json
 GET  http://localhost:3000/api/testimonials?status=draft&page=1&limit=5 HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODIzMDY5MTYsImV4cCI6MTc4MjkxMTcxNn0.mS_wESsexUzqBxF6iiuiCnKA1jusfHJFdZvwnk9ODdY
 
-
+Ответ: 
 {
   "code": 200,
   "status": "success",
@@ -109,7 +118,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
 ```
 **GET**	    `/api/testimonials/:testimonialId`	    Получить один отзыв по ID  
 
-**PUT**	    `/api/testimonials/:testimonialId`	    Обновить отзыв  
+**PUT**	    `/api/testimonials/:testimonialId`	    Обновить отзыв.  
+Принимает `customerName`,
+          `customerEmail`,
+          `customerPhone`,
+          `videoUrl`,
+          `rating`,
+          `text`,
+          `consentGiven` в теле.  
 Пример запроса:
 ```json
 PUT  http://localhost:3000/api/testimonials/8ac9936b-46a5-4e22-93be-ddc99ffe378f HTTP/1.1
@@ -131,12 +147,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlb
 
 **DELETE**	`/api/testimonials/:testimonialId`	    Мягкое удаление отзыва  
 
-**POST**	`/api/testimonials/:testimonialId/share`	Записать действие шаринга  
+**POST**	`/api/testimonials/:testimonialId/share`	Записать действие шаринга. Принимает массив строк `channels` в теле запроса.  
 
 ### Testimonial settings
 **GET**	    `/api/testimonials/settings`	            Получить настройки авторизованного пользователя  
 
 **POST**	`/api/testimonials/settings`	            Создать или обновить настройки.  
+Принимает `isEnabled`,
+          `defaultVideoLength`,
+          `videoLengthOptions`,
+          `questionnaire`,
+          `sendingOptions`,
+          `thankYouMessage`,
+          `contactConsent` в теле запроса.
 Пример запроса: 
 ```json
 POST http://localhost:3000/api/testimonials/settings HTTP/1.1
@@ -151,5 +174,27 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
 
 ### Analytics
 **GET**	    `/api/testimonials/analytics`	            Получить аналитику по отзывам  
+
+```json
+{
+  "code": 200,
+  "status": "success",
+  "message": "Fetched analytics successfully",
+  "data": {
+    "overview": {
+      "total": 6,
+      "byStatus": {
+        "draft": 5,
+        "shared": 1
+      },
+      "avgRating": 5
+    },
+    "period": {
+      "startDate": "2025-01-01T12:00:00.000Z",
+      "endDate": "2028-02-01T12:00:00.000Z"
+    }
+  }
+}
+```
 
 ## Описанием принятых архитектурных решений и их обоснованием

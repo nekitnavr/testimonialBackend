@@ -49,16 +49,16 @@ async function getTestimonials(req, res) {
         const { status, sort } = req.query
         if (req.query.page < 1) return ApiResponse.badRequest(res, 'Page must be greater than 0')
         if (req.query.limit < 1) return ApiResponse.badRequest(res, 'Limit must greater than 0')
-        if (!statuses.includes(status)) return ApiResponse.badRequest(res, `Status doesn't exist`)
+        if (status && !statuses.includes(status)) return ApiResponse.badRequest(res, `Status invalid`)
 
         const page = req.query.page ? parseInt(req.query.page) : 1
         const limit = req.query.limit ? parseInt(req.query.limit) : 10
         const toSkip = (page - 1) * limit
-        const filter = {
+        let filter = {
             userId: req.user.userId,
             isDeleted: false,
-            status: status
         }
+        if (status) filter.status = status
 
         let testimonials = await Testimonial
             .find(filter)
