@@ -59,9 +59,9 @@ async function login(req, res){
         const isMatch = await bcrypt.compare(password, user.password)
         if (!isMatch) return ApiResponse.unauthorized(res, `Wrong password`)
             
-        return res.send(ApiResponse.success('Successfully logged in', {
+        return ApiResponse.success(res, 'Successfully logged in', {
             token: signToken({userId: user.userId, email: user.email})
-        }))
+        })
     } catch (error) {
         console.error(error)
         return ApiResponse.failure(res, 'Login failed')

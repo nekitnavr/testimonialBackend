@@ -31,7 +31,9 @@ const testimonialSchema = new mongoose.Schema({
     },
     rating: {
         type: Number,
-        required: false
+        required: false,
+        min: [1, 'Rating must be greater or equal to 1'],
+        max: [5, 'Rating must be less or equal to 5']
     },
     text: {
         type: String,
