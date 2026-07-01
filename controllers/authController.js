@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const { roles, saltRounds } = require('../lib/constants');
 const ApiResponse = require('../lib/apiResponse');
 const { signToken } = require('../lib/utils');
+const { validationResult } = require('express-validator');
 
 async function register(req, res){
     try {
@@ -15,12 +16,6 @@ async function register(req, res){
             role,
             isActive 
         } = req.body
-        
-        if (!password || !businessName) return ApiResponse.badRequest(res, 'Password and Business Name must be at least one character')
-        if (!emailValidator.validate(email)) return ApiResponse.badRequest(res, 'Invalid Email')
-        if (!roles.includes(role)) return ApiResponse.badRequest(res, 'Role does not exist')
-        const isDuplicated = await User.exists({email: email})
-        if (isDuplicated) return ApiResponse.badRequest(res, 'User with this email already exists')
 
         const biggestId = await User.find().sort({userId: -1}).limit(1)
         const hashedPassword = await bcrypt.hash(password, saltRounds)
@@ -33,8 +28,7 @@ async function register(req, res){
             role: role,
             isActive: isActive
         })
-        
-        await user.save()
+        // await user.save()
 
         const {password:_, ...userData} = user.toObject();
 
