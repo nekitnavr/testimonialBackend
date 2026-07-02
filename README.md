@@ -1,7 +1,7 @@
 # Testimonial Management API
 
 ## Инструкция по установке и запуску проекта
-1. Клонировать репозиторию 
+1. Клонировать репозиторий 
     ```
     git clone <url> 
     cd <repository-name>
