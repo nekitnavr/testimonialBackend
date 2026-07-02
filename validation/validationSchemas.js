@@ -1,7 +1,7 @@
 const { Error } = require('mongoose')
 const { roles, statuses } = require('../lib/constants')
 const User = require('../models/user')
-const {customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule} = require('../lib/validationRules')
+const {customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule} = require('./validationRules')
 
 const checkEmail = async email=>{
     const isDuplicated = await User.exists({email: email})

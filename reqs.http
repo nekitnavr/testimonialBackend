@@ -1,0 +1,113 @@
+POST http://localhost:3000/api/auth/register
+content-type: application/json
+
+{
+    "email":"john@sss.com",
+    "password":"123",
+    "businessName":"company name",
+    "role":"owner",
+    "isActive":"false"
+}
+
+###
+
+POST http://localhost:3000/api/auth/login
+content-type: application/json
+
+{
+    "email": "john@email.com",
+    "password":"123"
+}
+
+###
+
+POST http://localhost:3000/api/testimonials HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
+
+{
+    "customerName": "Neil",
+    "customerEmail": "dsa@dsa.com",
+    "customerPhone": "123456789",
+    "videoUrl": "URL.com/asdfasdfasdf",
+    "rating": 1,
+    "text": "Meow",
+    "consentGiven": false
+}
+
+###
+
+GET  http://localhost:3000/api/testimonials?status=draft HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyOTkxODczLCJleHAiOjE3ODM1OTY2NzN9.fpcOY-707bhR-iC6r2dlhbegGUGbN56KWAyT8R155Hc
+
+###
+
+GET  http://localhost:3000/api/testimonials/8ac9936b-46a5-4e22-93be-ddc99ffe378f HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODIzMDY5MTYsImV4cCI6MTc4MjkxMTcxNn0.mS_wESsexUzqBxF6iiuiCnKA1jusfHJFdZvwnk9ODdY
+
+###
+
+PUT  http://localhost:3000/api/testimonials/8ac9936b-46a5-4e22-93be-ddc99ffe378f HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
+
+{
+    "customerName": "Neil bbbb",
+    "customerEmail": "bbb@sss.com",
+    "customerPhone": "987654321",
+    "videoUrl": "URL.com/asdfasdfasdf",
+    "rating": 5,
+    "text": "asdfasdfasdf",
+    "consentGiven": false
+}
+
+###
+
+PATCH http://localhost:3000/api/testimonials/630926b6-0b0f-4049-86d2-50f655c3546c/status HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
+
+{
+    "status": "shared"
+}
+
+### 
+
+DELETE http://localhost:3000/api/testimonials/5786aa41-74eb-4c37-b1f8-90ed2a9a1c77 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODIzMDY5MTYsImV4cCI6MTc4MjkxMTcxNn0.mS_wESsexUzqBxF6iiuiCnKA1jusfHJFdZvwnk9ODdY
+
+### 
+
+POST http://localhost:3000/api/testimonials/8ac9936b-46a5-4e22-93be-ddc99ffe378f/share HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODIzMDY5MTYsImV4cCI6MTc4MjkxMTcxNn0.mS_wESsexUzqBxF6iiuiCnKA1jusfHJFdZvwnk9ODdY
+
+{
+    "channels": ["facebook", "sms"]
+}
+
+###
+
+POST http://localhost:3000/api/testimonials/settings HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
+
+{
+    "thankYouMessage": "Nice kicks!"
+}
+
+###
+
+GET http://localhost:3000/api/testimonials/settings HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
+
+###
+
+GET http://localhost:3000/api/testimonials/analytics?startDate=12-1-1&endDate=2028-02-01T12:00:00.000Z HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
+

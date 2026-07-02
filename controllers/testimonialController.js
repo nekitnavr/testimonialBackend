@@ -3,9 +3,8 @@ const Testimonial = require('../models/testimonial')
 const ApiResponse = require('../lib/apiResponse')
 const uuid = require('uuid')
 const { statuses, allowedChannels, allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
-const emailValidator = require('email-validator')
 const TestimonialSettings = require('../models/testimonialSettings')
-const { findTestimonial, getChannelsFromReq, getDateRange, getOverview } = require('../lib/utils')
+const { findTestimonial, getChannelsFromReq, getDateRange, getOverview, setFieldsFromReq } = require('../lib/utils')
 
 async function createTestimonial(req, res) {
     try {
@@ -81,11 +80,7 @@ async function updateTestimonial(req,res){
         let testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return
 
-        let updateData = {}
-        allowedTestimonialFields.forEach(field => {
-            if (req.body.hasOwnProperty(field)) updateData[field] = req.body[field]
-        })
-        Object.assign(testimonial, updateData)
+        setFieldsFromReq(req, testimonial, allowedTestimonialFields)
         await testimonial.save()
 
         return ApiResponse.success(res, 'Testimonial updated')
@@ -162,23 +157,21 @@ async function shareTestimonial(req, res) {
 ///
 async function upsertTestimonialSettings(req, res) {
     try {
-        let updateData = {}
-        allowedTestimonialSettings.forEach(setting => {
-            if (req.body.hasOwnProperty(setting)) updateData[setting] = req.body[setting]
-        })
-
+        let isNew = false
+        
         let settings = await TestimonialSettings.findOne({ userId: req.user.userId })
-        if (!settings){
-            await new TestimonialSettings({
-                userId: req.user.userId,
-                ...updateData
-            }).save()
-        }else{
-            Object.assign(settings, updateData)
-            await settings.save()
+        if (!settings) {
+            settings = await new TestimonialSettings({ userId: req.user.userId })
+            isNew = true
         }
 
-        return ApiResponse.success(res, 'Changed settings successfully')
+        setFieldsFromReq(req, settings, allowedTestimonialSettings)
+        await settings.save()
+
+        if(isNew)
+            return ApiResponse.created(res, 'Created settings successfully')
+        else
+            return ApiResponse.success(res, 'Changed settings successfully')
     } catch (error) {
         console.error(error)
         return ApiResponse.failure(res, 'Failed to change settings')

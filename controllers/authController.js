@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const User = require('../models/user')
-const emailValidator = require('email-validator')
 const bcrypt = require('bcrypt');
 const { roles, saltRounds } = require('../lib/constants');
 const ApiResponse = require('../lib/apiResponse');
@@ -10,11 +9,8 @@ const { validationResult } = require('express-validator');
 async function register(req, res){
     try {
         const { 
-            email, 
             password, 
-            businessName,
-            role,
-            isActive 
+            ...data 
         } = req.body
 
         const biggestId = await User.find().sort({userId: -1}).limit(1)
@@ -22,11 +18,8 @@ async function register(req, res){
     
         const user = new User({
             userId: biggestId[0] ? biggestId[0].userId+1 : 0,
-            email: email,
             password: hashedPassword,
-            businessName: businessName,
-            role: role,
-            isActive: isActive
+            ...data
         })
         await user.save()
 
