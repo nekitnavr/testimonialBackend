@@ -1,7 +1,7 @@
 const express = require('express')
 const testimonialController = require('../controllers/testimonialController')
 const validateSchema = require('../middleware/validateSchema')
-const { createTestimonialSchema, getTestimonialsSchema, updateTestimonialSchema, updateStatusSchema } = require('../validation/validationSchemas')
+const { createTestimonialSchema, getTestimonialsSchema, updateTestimonialSchema, updateStatusSchema, shareTestimonialSchema } = require('../validation/validationSchemas')
 const router = express.Router()
 
 router.get('/analytics', testimonialController.getTestimonialAnalytics)
@@ -14,6 +14,6 @@ router.get('/:testimonialId', testimonialController.getTestimonial)
 router.put('/:testimonialId', validateSchema(updateTestimonialSchema), testimonialController.updateTestimonial)
 router.patch('/:testimonialId/status', validateSchema(updateStatusSchema), testimonialController.updateStatus)
 router.delete('/:testimonialId', testimonialController.deleteTestimonial)
-router.post('/:testimonialId/share', testimonialController.shareTestimonial)
+router.post('/:testimonialId/share', validateSchema(shareTestimonialSchema), testimonialController.shareTestimonial)
 
 module.exports = router

@@ -1,5 +1,5 @@
 const { Error } = require('mongoose')
-const { roles, statuses } = require('../lib/constants')
+const { roles, statuses, allowedChannels } = require('../lib/constants')
 const User = require('../models/user')
 const {customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule} = require('./validationRules')
 
@@ -20,6 +20,19 @@ const checkRole = role=>{
         throw new Error('Role does not exist');
     }
     return true
+}
+
+const checkChannels = channels=>{
+    const allAllowed = channels.every(channel => allowedChannels.includes(channel))
+    if (!allAllowed) {
+        throw new Error('Some channels are invalid')
+    }
+    return true
+}
+
+const removeRepeatingChannels = channels=>{
+    channels = [...new Set(channels)]
+    return channels
 }
 
 module.exports.createUserSchema = {
@@ -104,6 +117,23 @@ module.exports.updateStatusSchema = {
         trim: true,
         custom: {
             options: checkStatus
+        }
+    }
+}
+
+module.exports.shareTestimonialSchema = {
+    channels: {
+        isArray: {
+            options:{
+                min: 1
+            },
+            errorMessage: 'Channels must be an array of at least one channel'
+        },
+        custom: {
+            options: checkChannels
+        },
+        customSanitizer: {
+            options: removeRepeatingChannels
         }
     }
 }

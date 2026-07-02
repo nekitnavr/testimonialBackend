@@ -139,10 +139,7 @@ async function shareTestimonial(req, res) {
         const testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return
 
-        const channels = getChannelsFromReq(req, res)
-
-        const mergedChannels = [...new Set([...testimonial.sharedChannels, ...channels])]
-        testimonial.sharedChannels = mergedChannels
+        testimonial.sharedChannels = req.body.channels
         if (testimonial.status == 'completed') testimonial.status = 'shared'
         if (!testimonial.sharedAt) testimonial.sharedAt = new Date()
         await testimonial.save()
@@ -208,7 +205,7 @@ async function getTestimonialAnalytics(req, res) {
         
         const overview = await getOverview(filter)
         const data = {
-            overview: overview[0],
+            overview: overview,
             period: { startDate: startDate, endDate: endDate }
         }
 

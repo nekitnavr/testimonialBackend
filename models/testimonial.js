@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { status } = require('../lib/constants')
+const { statuses, allowedChannels } = require('../lib/constants')
 
 const testimonialSchema = new mongoose.Schema({
     testimonialId: {
@@ -42,7 +42,7 @@ const testimonialSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: status,
+        enum: statuses,
         default: 'draft',
         index: true
     },
@@ -57,7 +57,8 @@ const testimonialSchema = new mongoose.Schema({
     },
     sharedChannels: {
         type: [String],
-        required: false
+        required: false,
+        enum: allowedChannels
     },
     isDeleted: {
         type: Boolean,

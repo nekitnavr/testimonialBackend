@@ -15,7 +15,7 @@ POST http://localhost:3000/api/auth/login
 content-type: application/json
 
 {
-    "email": "john@email.com",
+    "email": "sigma2@thing.com",
     "password":"123"
 }
 
@@ -23,7 +23,7 @@ content-type: application/json
 
 POST http://localhost:3000/api/testimonials HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoic2lnbWEyQHRoaW5nLmNvbSIsImlhdCI6MTc4MzAxOTA5NiwiZXhwIjoxNzgzNjIzODk2fQ.MFMEvfZnVX1tTLfFypqYklMBrTRUvuYGrCj4rxYtxAE
 
 {
     "customerName": "Neil",
@@ -83,10 +83,10 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
 
 POST http://localhost:3000/api/testimonials/8ac9936b-46a5-4e22-93be-ddc99ffe378f/share HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODIzMDY5MTYsImV4cCI6MTc4MjkxMTcxNn0.mS_wESsexUzqBxF6iiuiCnKA1jusfHJFdZvwnk9ODdY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
 
 {
-    "channels": ["facebook", "sms"]
+    "channels": [ "sms", "facebook" ]
 }
 
 ###
@@ -109,5 +109,4 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlb
 
 GET http://localhost:3000/api/testimonials/analytics?startDate=12-1-1&endDate=2028-02-01T12:00:00.000Z HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
-
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoic2lnbWEyQHRoaW5nLmNvbSIsImlhdCI6MTc4MzAxOTA5NiwiZXhwIjoxNzgzNjIzODk2fQ.MFMEvfZnVX1tTLfFypqYklMBrTRUvuYGrCj4rxYtxAE
