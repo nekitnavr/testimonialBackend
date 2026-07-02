@@ -9,32 +9,11 @@ const { findTestimonial, getChannelsFromReq, getDateRange, getOverview } = requi
 
 async function createTestimonial(req, res) {
     try {
-        const {
-            customerName,
-            customerEmail,
-            customerPhone,
-            videoUrl,
-            rating,
-            text,
-            consentGiven,
-        } = req.body
-
-        if (!customerName) return ApiResponse.badRequest(res, 'Customer name required')
-        if (customerEmail && !emailValidator.validate(customerEmail)) return ApiResponse.badRequest(res, 'Invalid email format')
-        if (customerPhone && customerPhone.length < 9) return ApiResponse.badRequest(res, 'Phone numbers must be at lest 9 digits')
-        if (rating && (rating < 1 || rating > 5)) return ApiResponse.badRequest(res, 'Ratings must be 1 to 5')
-
         const testimonial = new Testimonial({
             testimonialId: uuid.v4(),
             userId: req.user.userId,
-            customerName: customerName,
-            customerEmail: customerEmail,
-            customerPhone: customerPhone,
-            videoUrl: videoUrl,
-            rating: rating,
-            text: text,
+            ...req.body,            
             status: 'draft',
-            consentGiven: Boolean(consentGiven)
         })
         await testimonial.save()
 
@@ -48,10 +27,6 @@ async function createTestimonial(req, res) {
 async function getTestimonials(req, res) {
     try {
         const { status, sort } = req.query
-        if (req.query.page < 1) return ApiResponse.badRequest(res, 'Page must be greater than 0')
-        if (req.query.limit < 1) return ApiResponse.badRequest(res, 'Limit must greater than 0')
-        if (status && !statuses.includes(status)) return ApiResponse.badRequest(res, `Status invalid`)
-
         const page = req.query.page ? parseInt(req.query.page) : 1
         const limit = req.query.limit ? parseInt(req.query.limit) : 10
         const toSkip = (page - 1) * limit
@@ -68,9 +43,9 @@ async function getTestimonials(req, res) {
                 [sort ? sort : 'createdAt']: -1
             })
             .limit(limit)
-        const total = await Testimonial.countDocuments(filter)
-
+            
         let response = new ApiResponse(200, 'success',`User's testimonials`, testimonials)
+        const total = await Testimonial.countDocuments(filter)
         response.pagination = {
             "total": total,
             "page": page,
@@ -106,20 +81,6 @@ async function updateTestimonial(req,res){
         let testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return
 
-        const {
-            customerName,
-            customerEmail,
-            customerPhone,
-            videoUrl,
-            rating,
-            text,
-            consentGiven,
-        } = req.body
-
-        if (customerEmail && !emailValidator.validate(customerEmail)) return ApiResponse.badRequest(res, 'Invalid email format')
-        if (customerPhone && customerPhone.length < 9) return ApiResponse.badRequest(res, 'Phone numbers must be at lest 9 digits')
-        if (rating && (rating < 1 || rating > 5)) return ApiResponse.badRequest(res, 'Ratings must be 1 to 5')
-
         let updateData = {}
         allowedTestimonialFields.forEach(field => {
             if (req.body.hasOwnProperty(field)) updateData[field] = req.body[field]
@@ -138,8 +99,6 @@ async function updateStatus(req, res) {
     try {
         const { status } = req.body
         const { testimonialId } = req.params
-
-        if (!statuses.includes(status)) return ApiResponse.badRequest(res, 'Status invalid')
 
         const testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return

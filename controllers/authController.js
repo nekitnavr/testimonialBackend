@@ -28,7 +28,7 @@ async function register(req, res){
             role: role,
             isActive: isActive
         })
-        // await user.save()
+        await user.save()
 
         const {password:_, ...userData} = user.toObject();
 
@@ -45,7 +45,6 @@ async function register(req, res){
 async function login(req, res){
     try {
         const {email, password} = req.body
-        if (!email || !password) return ApiResponse.badRequest(res, 'Email and password are required')
 
         const user = await User.findOne({email: email})
         if (!user) return ApiResponse.badRequest(res, `User doesn't exist`)
