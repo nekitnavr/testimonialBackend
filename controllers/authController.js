@@ -5,6 +5,7 @@ const { roles, saltRounds } = require('../lib/constants');
 const ApiResponse = require('../lib/apiResponse');
 const { signToken } = require('../lib/utils');
 const { validationResult } = require('express-validator');
+const Counter = require('../models/counter');
 
 async function register(req, res){
     try {
@@ -13,11 +14,11 @@ async function register(req, res){
             ...data 
         } = req.body
 
-        const biggestId = await User.find().sort({userId: -1}).limit(1)
+        const counter = await Counter.findOneAndUpdate({counterName: 'userId'}, {$inc: {sequence: 1}}, {upsert: true})
         const hashedPassword = await bcrypt.hash(password, saltRounds)
     
         const user = new User({
-            userId: biggestId[0] ? biggestId[0].userId+1 : 0,
+            userId: counter.sequence,
             password: hashedPassword,
             ...data
         })
