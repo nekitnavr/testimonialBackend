@@ -4,7 +4,7 @@ const ApiResponse = require('../lib/apiResponse')
 const { randomUUID } = require('node:crypto')
 const { statuses, allowedChannels, allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
 const TestimonialSettings = require('../models/testimonialSettings')
-const { findTestimonial, getChannelsFromReq, getDateRange, getOverview, setFieldsFromReq } = require('../lib/utils')
+const { findTestimonial, getChannelsFromReq, getDateRange, getOverview, setFieldsFromReq, canTransitionStatus } = require('../lib/utils')
 
 async function createTestimonial(req, res, next) {
     try {
@@ -94,8 +94,7 @@ async function updateStatus(req, res, next) {
         const testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return
 
-        const canTransition = (statuses.indexOf(status) - statuses.indexOf(testimonial.status)) == 1
-        if (!canTransition) {
+        if (!canTransitionStatus(testimonial.status, status)) {
             return ApiResponse.badRequest(res, `Cannot transition from ${testimonial.status} to ${status}`)
         }
 
