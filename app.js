@@ -1,4 +1,7 @@
 require('dotenv').config()
+const checkEnv = require('./lib/checkEnv')
+checkEnv()
+
 const mongoose = require('mongoose')
 const express = require('express')
 const authRouter = require('./routes/authRouter')
