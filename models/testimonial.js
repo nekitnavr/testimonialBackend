@@ -58,7 +58,8 @@ const testimonialSchema = new mongoose.Schema({
     sharedChannels: {
         type: [String],
         required: false,
-        enum: allowedChannels
+        enum: allowedChannels,
+        default: []
     },
     isDeleted: {
         type: Boolean,

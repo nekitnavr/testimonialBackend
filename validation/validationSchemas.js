@@ -1,5 +1,5 @@
 const { Error } = require('mongoose')
-const { roles, statuses, allowedChannels } = require('../lib/constants')
+const { roles, statuses, allowedChannels, allowedFieldsToSortBy, allowedTestimonialSettings } = require('../lib/constants')
 const User = require('../models/user')
 const {customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule} = require('./validationRules')
 
@@ -26,6 +26,13 @@ const checkChannels = channels=>{
     const allAllowed = channels.every(channel => allowedChannels.includes(channel))
     if (!allAllowed) {
         throw new Error('Some channels are invalid')
+    }
+    return true
+}
+
+const checkSortBy = sortByField => {
+    if (!allowedFieldsToSortBy.includes(sortByField)){
+        throw new Error(`Can't sort by this field`)
     }
     return true
 }
@@ -102,6 +109,15 @@ module.exports.getTestimonialsSchema = {
             },
             errorMessage: 'Limit must be greater than 0'
         }
+    },
+    sort: {
+        optional: true,
+        trim: true,
+        notEmpty: {errorMessage: 'Sort must not be empty'},
+        custom: {
+            options: checkSortBy,
+            errorMessage: `Allowed fields to sort by: ${allowedFieldsToSortBy.join(', ')}`
+        }
     }
 }
 
@@ -130,7 +146,8 @@ module.exports.shareTestimonialSchema = {
             errorMessage: 'Channels must be an array of at least one channel'
         },
         custom: {
-            options: checkChannels
+            options: checkChannels,
+            errorMessage: `Allowed channels: ${allowedChannels.join(', ')}.`
         },
         customSanitizer: {
             options: removeRepeatingChannels
@@ -152,5 +169,72 @@ module.exports.getAnalyticsSchema = {
         isISO8601: {
             errorMessage: 'endDate must be a valid date (ISO 8601)'
         }
+    }
+}
+
+module.exports.upsertTestimonialSettingsSchema = {
+    isEnabled: {
+        optional: true,
+        isBoolean: {
+            errorMessage: 'isEnabled must be boolean'
+        }
+    },
+    defaultVideoLength: {
+        optional: true,
+        isInt: {
+            options: {
+                min: 1
+            },
+            errorMessage: 'defaultVideoLength must be an integer greater than 0'
+        }
+    },
+    videoLengthOptions: {
+        optional: true,
+        isArray: {errorMessage: 'videoLengthOptions must be an array'}
+    },
+    'videoLengthOptions.*': {
+        isInt: {
+            errorMessage: 'Each videoLengthOptions value must be an integer'
+        }
+    },
+    questionnaire: {
+        optional: true,
+        isArray: {errorMessage: 'questionnaire must be an array'}
+    },
+    'questionnaire.*': {
+        optional: true,
+        isString: {errorMessage: 'Each questionnaire value must be a string'}
+    },
+    sendingOptions: {
+        optional: true,
+        isArray: {errorMessage: 'sendingOptions must be an array'},
+        checkChannels: {
+            custom: checkChannels,
+            errorMessage: `Allowed sendingOptions: ${allowedChannels.join(', ')}.`
+        },
+        removeRepeatingChannels: {
+            customSanitizer: removeRepeatingChannels
+        }
+    },
+    thankYouMessage: {
+        optional: true,
+        trim: true,
+        isString: { errorMessage: 'thankYouMessage must be a string' },
+    },
+    contactConsent: {
+        optional: true,
+        isObject: { 
+            strict: true,
+            errorMessage: 'contactConsent must be an object'
+        },
+    },
+    'contactConsent.enabled': {
+        optional: true,
+        isBoolean: { errorMessage: 'contactConsent.enabled must be a boolean'}
+    },
+    'contactConsent.text': {
+        optional: true,
+        trim: true,
+        isString: { errorMessage: 'contactConsent.text must be a string' },
     }
 }

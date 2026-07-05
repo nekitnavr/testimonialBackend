@@ -133,7 +133,10 @@ async function shareTestimonial(req, res, next) {
         const testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return
 
-        testimonial.sharedChannels = req.body.channels
+        testimonial.sharedChannels = [...new Set([
+            ...testimonial.sharedChannels,
+            ...req.body.channels
+        ])]
         if (testimonial.status == 'completed') testimonial.status = 'shared'
         if (!testimonial.sharedAt) testimonial.sharedAt = new Date()
         await testimonial.save()
@@ -171,7 +174,7 @@ async function getTestimonialSettings(req, res, next) {
     try {
         const settings = await TestimonialSettings.findOne({ userId: req.user.userId })
 
-        let data = { settings: settings }
+        let data = settings
         if (!settings) data = null
 
         return ApiResponse.success(res, 'Fetched setttings successfully', data)

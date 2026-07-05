@@ -37,7 +37,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtY
 
 ###
 
-GET  http://localhost:3000/api/testimonials?status=draft HTTP/1.1
+GET  http://localhost:3000/api/testimonials?status=draft&sort=rating HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyOTkxODczLCJleHAiOjE3ODM1OTY2NzN9.fpcOY-707bhR-iC6r2dlhbegGUGbN56KWAyT8R155Hc
 
@@ -86,7 +86,7 @@ content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
 
 {
-    "channels": [ "sms", "facebook" ]
+    "channels": [ "sms" ]
 }
 
 ###
@@ -96,7 +96,7 @@ content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiaWF0IjoxNzgyNjU1MjUyLCJleHAiOjE3ODMyNjAwNTJ9.u3bNhzzDxCi4iyjF9Rwemph_G_E8yOvSoJjDdiSg7Fg
 
 {
-    "thankYouMessage": "Nice kicks!"
+    
 }
 
 ###
