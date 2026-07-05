@@ -6,6 +6,7 @@ const testimonialRouter = require('./routes/testimonialRouter')
 const auth = require('./middleware/auth')
 const rateLimit = require('express-rate-limit')
 const ApiResponse = require('./lib/apiResponse')
+const errorHandler = require('./middleware/errorHandler')
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(()=>{
@@ -28,6 +29,8 @@ const limiter = rateLimit({
 
 app.use('/api/auth', limiter, authRouter)
 app.use('/api/testimonials', auth, testimonialRouter)
+
+app.use(errorHandler)
 
 app.listen(port, ()=>{
     console.log('App is listening on port ' + port)

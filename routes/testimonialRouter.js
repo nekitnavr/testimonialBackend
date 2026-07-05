@@ -1,10 +1,10 @@
 const express = require('express')
 const testimonialController = require('../controllers/testimonialController')
 const validateSchema = require('../middleware/validateSchema')
-const { createTestimonialSchema, getTestimonialsSchema, updateTestimonialSchema, updateStatusSchema, shareTestimonialSchema } = require('../validation/validationSchemas')
+const { createTestimonialSchema, getTestimonialsSchema, updateTestimonialSchema, updateStatusSchema, shareTestimonialSchema, getAnalyticsSchema } = require('../validation/validationSchemas')
 const router = express.Router()
 
-router.get('/analytics', testimonialController.getTestimonialAnalytics)
+router.get('/analytics', validateSchema(getAnalyticsSchema), testimonialController.getTestimonialAnalytics)
 router.get('/settings', testimonialController.getTestimonialSettings)
 router.post('/settings', testimonialController.upsertTestimonialSettings)
 

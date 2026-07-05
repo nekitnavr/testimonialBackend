@@ -3,7 +3,7 @@ const { roles, statuses, allowedChannels } = require('../lib/constants')
 const User = require('../models/user')
 const {customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule} = require('./validationRules')
 
-const checkEmail = async email=>{
+const checkEmailExists = async email=>{
     const isDuplicated = await User.exists({email: email})
     if (isDuplicated) throw new Error('User with this email already exists')
 }
@@ -42,7 +42,7 @@ module.exports.createUserSchema = {
             errorMessage: 'Invalid email',
         },
         custom: {
-            options: checkEmail
+            options: checkEmailExists
         }
     },
     password: { 
@@ -134,6 +134,23 @@ module.exports.shareTestimonialSchema = {
         },
         customSanitizer: {
             options: removeRepeatingChannels
+        }
+    }
+}
+
+module.exports.getAnalyticsSchema = {
+    startDate: {
+        optional: true,
+        trim: true,
+        isISO8601: {
+            errorMessage: 'startDate must be a valid date (ISO 8601)'
+        }
+    },
+    endDate: {
+        optional: true,
+        trim: true,
+        isISO8601: {
+            errorMessage: 'endDate must be a valid date (ISO 8601)'
         }
     }
 }

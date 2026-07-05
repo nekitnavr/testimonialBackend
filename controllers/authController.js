@@ -7,14 +7,17 @@ const { signToken } = require('../lib/utils');
 const { validationResult } = require('express-validator');
 const Counter = require('../models/counter');
 
-async function register(req, res){
+async function register(req, res, next){
     try {
         const { 
             password, 
             ...data 
         } = req.body
 
-        const counter = await Counter.findOneAndUpdate({counterName: 'userId'}, {$inc: {sequence: 1}}, {upsert: true})
+        const counter = await Counter.findOneAndUpdate(
+            {counterName: 'userId'}, 
+            {$inc: {sequence: 1}}, 
+            {upsert: true, returnDocument: 'after', setDefaultsOnInsert: true})
         const hashedPassword = await bcrypt.hash(password, saltRounds)
     
         const user = new User({
@@ -24,19 +27,21 @@ async function register(req, res){
         })
         await user.save()
 
-        const {password:_, ...userData} = user.toObject();
+        const {password:_, userId, email, ...userData} = user.toObject();
 
         return ApiResponse.created(res, 'User created', {
-            user: userData,
+            user: {
+                userId: userId,
+                email: email
+            },
             token: signToken(userData)
         })
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to create user')
+        next(error)
     }
 }
 
-async function login(req, res){
+async function login(req, res, next){
     try {
         const {email, password} = req.body
 
@@ -50,8 +55,7 @@ async function login(req, res){
             token: signToken({userId: user.userId, email: user.email})
         })
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Login failed')
+        next(error)
     }
 }
 

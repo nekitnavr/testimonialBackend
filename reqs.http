@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/register
 content-type: application/json
 
 {
-    "email":"some@da.com",
+    "email":"john@das.com",
     "password":"123",
     "businessName":"company name",
     "role":"owner",
@@ -15,7 +15,7 @@ POST http://localhost:3000/api/auth/login
 content-type: application/json
 
 {
-    "email": "sigma2@thing.com",
+    "email": "sigma33@thing.com",
     "password":"123"
 }
 
@@ -107,6 +107,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlb
 
 ###
 
-GET http://localhost:3000/api/testimonials/analytics?startDate=12-1-1&endDate=2028-02-01T12:00:00.000Z HTTP/1.1
+GET http://localhost:3000/api/testimonials/analytics?startDate=2025-02-01T12:00:00.000Z&endDate=2028-02-01T12:00:00.000Z HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoic2lnbWEyQHRoaW5nLmNvbSIsImlhdCI6MTc4MzAxOTA5NiwiZXhwIjoxNzgzNjIzODk2fQ.MFMEvfZnVX1tTLfFypqYklMBrTRUvuYGrCj4rxYtxAE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODMyNDU3NzIsImV4cCI6MTc4Mzg1MDU3Mn0.0nV00QwzxHWMjTvg75sAVrWQZIv0NSJrV3a09ixdMw8

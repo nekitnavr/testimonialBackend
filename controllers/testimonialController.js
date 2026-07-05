@@ -1,15 +1,15 @@
 const mongoose = require('mongoose')
 const Testimonial = require('../models/testimonial')
 const ApiResponse = require('../lib/apiResponse')
-const uuid = require('uuid')
+const { randomUUID } = require('node:crypto')
 const { statuses, allowedChannels, allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
 const TestimonialSettings = require('../models/testimonialSettings')
 const { findTestimonial, getChannelsFromReq, getDateRange, getOverview, setFieldsFromReq } = require('../lib/utils')
 
-async function createTestimonial(req, res) {
+async function createTestimonial(req, res, next) {
     try {
         const testimonial = new Testimonial({
-            testimonialId: uuid.v4(),
+            testimonialId: randomUUID(),
             userId: req.user.userId,
             ...req.body,            
             status: 'draft',
@@ -18,12 +18,11 @@ async function createTestimonial(req, res) {
 
         return ApiResponse.created(res, 'Testimonial created')
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to create testimonial')
+        next(error)
     }
 }
 
-async function getTestimonials(req, res) {
+async function getTestimonials(req, res, next) {
     try {
         const { status, sort } = req.query
         const page = req.query.page ? parseInt(req.query.page) : 1
@@ -54,12 +53,11 @@ async function getTestimonials(req, res) {
 
         return res.status(200).send(response)
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to fetch testimonials')
+        next(error)
     }
 }
 
-async function getTestimonial(req, res){
+async function getTestimonial(req, res, next){
     try {
         const { testimonialId } = req.params
 
@@ -68,12 +66,11 @@ async function getTestimonial(req, res){
 
         return ApiResponse.success(res, 'Found testimonial', testimonial)
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to fetch testimonial')
+        next(error)
     }
 }
 
-async function updateTestimonial(req,res){
+async function updateTestimonial(req,res, next){
     try {
         const { testimonialId } = req.params
 
@@ -85,12 +82,11 @@ async function updateTestimonial(req,res){
 
         return ApiResponse.success(res, 'Testimonial updated')
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to update testimonial')
+        next(error)
     }
 }
 
-async function updateStatus(req, res) {
+async function updateStatus(req, res, next) {
     try {
         const { status } = req.body
         const { testimonialId } = req.params
@@ -109,12 +105,11 @@ async function updateStatus(req, res) {
 
         return ApiResponse.success(res, 'Testimonial status updated')
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to change status')
+        next(error)
     }
 }
 
-async function deleteTestimonial(req, res) {
+async function deleteTestimonial(req, res, next) {
     try {
         const { testimonialId } = req.params
 
@@ -127,12 +122,11 @@ async function deleteTestimonial(req, res) {
 
         return ApiResponse.success(res, 'Testimonial deleted')
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to delete testimonial')
+        next(error)
     }
 }
 
-async function shareTestimonial(req, res) {
+async function shareTestimonial(req, res, next) {
     try {
         const { testimonialId } = req.params
 
@@ -146,13 +140,12 @@ async function shareTestimonial(req, res) {
 
         return ApiResponse.success(res, 'Testimonial shared')
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to share testimonial')
+        next(error)
     }
 }
 
 ///
-async function upsertTestimonialSettings(req, res) {
+async function upsertTestimonialSettings(req, res, next) {
     try {
         let isNew = false
         
@@ -170,12 +163,11 @@ async function upsertTestimonialSettings(req, res) {
         else
             return ApiResponse.success(res, 'Changed settings successfully')
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to change settings')
+        next(error)
     }
 }
 
-async function getTestimonialSettings(req, res) {
+async function getTestimonialSettings(req, res, next) {
     try {
         const settings = await TestimonialSettings.findOne({ userId: req.user.userId })
 
@@ -184,13 +176,12 @@ async function getTestimonialSettings(req, res) {
 
         return ApiResponse.success(res, 'Fetched setttings successfully', data)
     } catch (error) {
-        console.error(error)
-        return ApiResponse.failure(res, 'Failed to fetch settings')
+        next(error)
     }
 }
 
 ///
-async function getTestimonialAnalytics(req, res) {
+async function getTestimonialAnalytics(req, res, next) {
     try {
         const {startDate, endDate} = getDateRange(req.query.startDate, req.query.endDate)
 
@@ -211,11 +202,7 @@ async function getTestimonialAnalytics(req, res) {
 
         return ApiResponse.success(res, 'Fetched analytics successfully', data)
     } catch (error) {
-        console.error(error)
-        if (error.message.includes('date format')){
-            return ApiResponse.badRequest(res, error.message)
-        }
-        return ApiResponse.failure(res, 'Failed to fetch testimonial analytics')
+        next(error)
     }
 }
 
