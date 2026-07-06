@@ -12,7 +12,7 @@ app.use(express.json());
 
 const limiter = rateLimit({
 	windowMs: 60 * 1000,
-	limit: 5,
+	limit: process.env.NODE_ENV === 'test' ? 10000 : 5,
 	standardHeaders: true,
 	legacyHeaders: false,
     message: new ApiResponse(429, 'failure', 'Too many requests, please try again later.'),

@@ -1,6 +1,3 @@
-process.env.JWT_SECRET = 'test-secret'
-process.env.JWT_EXPIRY = '1h'
-
 const jwt = require('jsonwebtoken')
 const auth = require('../middleware/auth')
 const { signToken } = require('../lib/utils')
