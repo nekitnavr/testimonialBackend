@@ -186,3 +186,53 @@ describe('PATCH /api/testimonials/:testimonialId/status', () => {
         expect(res.status).toBe(400)
     })
 })
+
+describe('DELETE /api/testimonials/:testimonialId', ()=>{
+    it('deletes an existing testimonial', async ()=>{
+        const token = await registerAndLogin('test@email.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ customerName: 'Status Test', rating: 5 })
+        
+        const testimonials = await request(app)
+            .get('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+
+        const testimonialId = testimonials.body.data[0].testimonialId
+
+        const res = await request(app)
+            .delete(`/api/testimonials/${testimonialId}`)
+            .set('Authorization', `Bearer ${token}`)
+
+        const getRes = await request(app)
+            .get(`/api/testimonials/${testimonialId}`)
+            .set('Authorization', `Bearer ${token}`)
+
+        expect(res.status).toBe(200)
+        expect(getRes.status).toBe(404)
+    })
+
+    it(`returns 403 when deleting another user's testimonial`, async () => {
+        const tokenA = await registerAndLogin('ownerA@test.com')
+        const tokenB = await registerAndLogin('ownerB@test.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${tokenA}`)
+            .send({ customerName: 'Owned by A', rating: 3 })
+
+        const testimonials = await request(app)
+            .get('/api/testimonials')
+            .set('Authorization', `Bearer ${tokenA}`)
+
+        const testimonialId = testimonials.body.data[0].testimonialId
+
+        const res = await request(app)
+            .delete(`/api/testimonials/${testimonialId}`)
+            .set('Authorization', `Bearer ${tokenB}`)
+
+        expect(res.status).toBe(403)
+    })
+})
