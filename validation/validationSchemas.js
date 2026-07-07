@@ -190,7 +190,10 @@ module.exports.upsertTestimonialSettingsSchema = {
     },
     videoLengthOptions: {
         optional: true,
-        isArray: {errorMessage: 'videoLengthOptions must be an array'}
+        isArray: {
+            options: { min: 1 },
+            errorMessage: 'videoLengthOptions must be an array with at least one element'
+        }
     },
     'videoLengthOptions.*': {
         isInt: {
@@ -199,7 +202,9 @@ module.exports.upsertTestimonialSettingsSchema = {
     },
     questionnaire: {
         optional: true,
-        isArray: {errorMessage: 'questionnaire must be an array'}
+        isArray: {
+            options: { min: 1 },
+            errorMessage: 'questionnaire must be an array with at least one element'}
     },
     'questionnaire.*': {
         optional: true,
@@ -207,7 +212,9 @@ module.exports.upsertTestimonialSettingsSchema = {
     },
     sendingOptions: {
         optional: true,
-        isArray: {errorMessage: 'sendingOptions must be an array'},
+        isArray: {
+            options: { min: 1 },
+            errorMessage: 'sendingOptions must be an array with at least one element'},
         checkChannels: {
             custom: checkChannels,
             errorMessage: `Allowed sendingOptions: ${allowedChannels.join(', ')}.`

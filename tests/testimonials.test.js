@@ -1,8 +1,10 @@
 const request = require('supertest')
 const app = require('../app')
 
+
 const {connect, clearDatabase, closeDatabase} = require('./dbSetup')
 const User = require('../models/user')
+const { registerAndLogin } = require('./testHelpers')
 
 beforeAll(async () => {
     await connect()
@@ -15,22 +17,6 @@ afterEach(async () => {
 afterAll(async () => {
     await closeDatabase()
 })
-
-async function registerAndLogin(email = 'owner@test.com'){
-    await request(app).post('/api/auth/register').send({
-        email,
-        password: 'password123',
-        businessName: 'Test Biz',
-        role: 'owner'
-    })
-
-    const loginRes = await request(app).post('/api/auth/login').send({
-        email,
-        password: 'password123'
-    })
-
-    return loginRes.body.data.token
-}
 
 describe('POST /api/auth/register', ()=>{
     it('creates a new user', async ()=>{

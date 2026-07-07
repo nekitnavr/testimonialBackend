@@ -31,10 +31,11 @@ async function register(req, res, next){
 
         return ApiResponse.created(res, 'User created', {
             user: {
-                userId: userId,
-                email: email
+                userId,
+                email,
+                ...userData
             },
-            token: signToken(userData)
+            token: signToken({userId, email})
         })
     } catch (error) {
         next(error)
