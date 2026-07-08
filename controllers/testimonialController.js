@@ -132,6 +132,10 @@ async function shareTestimonial(req, res, next) {
         const testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return
 
+        if (!['completed', 'shared'].includes(testimonial.status)) {
+            return ApiResponse.badRequest(res, `Cannot share testimonial in status "${testimonial.status}". Testimonial must be completed first.`)
+        }
+
         testimonial.sharedChannels = [...new Set([
             ...testimonial.sharedChannels,
             ...req.body.channels
@@ -185,13 +189,16 @@ async function getTestimonialSettings(req, res, next) {
 ///
 async function getTestimonialAnalytics(req, res, next) {
     try {
-        const {startDate, endDate} = getDateRange(req.query.startDate, req.query.endDate)
+        let {startDate, endDate} = getDateRange(req.query.startDate, req.query.endDate)
+
+        startDate = startDate || new Date(0)
+        endDate = endDate || new Date() 
 
         const filter = {
             isDeleted: false,
             createdAt: {
-                $gte: startDate ? startDate : new Date(0),
-                $lte: endDate ? endDate : new Date()
+                $gte: startDate,
+                $lte: endDate
             },
             userId: req.user.userId
         }
@@ -199,7 +206,7 @@ async function getTestimonialAnalytics(req, res, next) {
         const overview = await getOverview(filter)
         const data = {
             overview: overview,
-            period: { startDate: startDate, endDate: endDate }
+            period: { startDate, endDate }
         }
 
         return ApiResponse.success(res, 'Fetched analytics successfully', data)

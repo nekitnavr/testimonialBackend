@@ -61,6 +61,7 @@ module.exports.createUserSchema = {
         notEmpty: { errorMessage: 'Business name must not be empty' } 
     },
     role: {
+        optional: true,
         trim: true,
         custom: {
             options: checkRole

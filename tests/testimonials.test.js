@@ -88,7 +88,7 @@ describe('GET /api/testimonials/:testimonialId', () => {
         const createRes = await request(app)
             .post('/api/testimonials')
             .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Jane Doe', rating: 4 })
+            .send({ customerName: 'Jane Doe' })
 
         const testimonials = await request(app)
             .get('/api/testimonials')
@@ -111,7 +111,7 @@ describe('GET /api/testimonials/:testimonialId', () => {
         await request(app)
             .post('/api/testimonials')
             .set('Authorization', `Bearer ${tokenA}`)
-            .send({ customerName: 'Owned by A', rating: 3 })
+            .send({ customerName: 'Owned by A' })
 
         const testimonials = await request(app)
             .get('/api/testimonials')
@@ -134,7 +134,7 @@ describe('PATCH /api/testimonials/:testimonialId/status', () => {
         await request(app)
             .post('/api/testimonials')
             .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Status Test', rating: 5 })
+            .send({ customerName: 'Status Test' })
 
         const testimonials = await request(app)
             .get('/api/testimonials')
@@ -156,7 +156,7 @@ describe('PATCH /api/testimonials/:testimonialId/status', () => {
         await request(app)
             .post('/api/testimonials')
             .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Bad Status Test', rating: 5 })
+            .send({ customerName: 'Bad Status Test' })
 
         const testimonials = await request(app)
             .get('/api/testimonials')
@@ -180,7 +180,7 @@ describe('DELETE /api/testimonials/:testimonialId', ()=>{
         await request(app)
             .post('/api/testimonials')
             .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Status Test', rating: 5 })
+            .send({ customerName: 'Status Test' })
         
         const testimonials = await request(app)
             .get('/api/testimonials')
@@ -207,7 +207,7 @@ describe('DELETE /api/testimonials/:testimonialId', ()=>{
         await request(app)
             .post('/api/testimonials')
             .set('Authorization', `Bearer ${tokenA}`)
-            .send({ customerName: 'Owned by A', rating: 3 })
+            .send({ customerName: 'Owned by A' })
 
         const testimonials = await request(app)
             .get('/api/testimonials')

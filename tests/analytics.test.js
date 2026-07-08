@@ -125,4 +125,21 @@ describe('GET /api/testimonials/analytics', () => {
         expect(res.status).toBe(200)
         expect(res.body.data.overview.total).toBe(0)
     })
+
+    it('returns averageRating as 0 when testimonials exist but have no rating', async () => {
+        const token = await registerAndLogin('norating@test.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ customerName: 'No Rating Customer' })
+
+        const res = await request(app)
+            .get('/api/testimonials/analytics')
+            .set('Authorization', `Bearer ${token}`)
+
+        expect(res.status).toBe(200)
+        expect(res.body.data.overview.total).toBe(1)
+        expect(res.body.data.overview.averageRating).toBe(0)
+    })
 })
