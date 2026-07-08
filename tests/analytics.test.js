@@ -142,4 +142,26 @@ describe('GET /api/testimonials/analytics', () => {
         expect(res.body.data.overview.total).toBe(1)
         expect(res.body.data.overview.averageRating).toBe(0)
     })
+
+    it('includes only testimonials created within the given date range', async () => {
+        const token = await registerAndLogin('daterangeboth@test.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ customerName: 'In range' })
+
+        const start = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+        const end = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+
+        const res = await request(app)
+            .get(`/api/testimonials/analytics?startDate=${start}&endDate=${end}`)
+            .set('Authorization', `Bearer ${token}`)
+
+        expect(res.status).toBe(200)
+        expect(res.body.data.overview.total).toBe(1)
+        expect(res.body.data.period.startDate).toBe(start)
+        expect(res.body.data.period.endDate).toBe(end)
+    })
 })
+

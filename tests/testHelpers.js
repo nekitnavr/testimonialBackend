@@ -18,4 +18,26 @@ async function registerAndLogin(email = 'test@example.com', overrides = {}){
     return loginRes.body.data.token
 }
 
-module.exports = { registerAndLogin }
+async function createAndDelete(token){
+    await request(app)
+        .post('/api/testimonials')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ customerName: 'Soon Deleted' })
+
+    const listRes = await request(app)
+        .get('/api/testimonials')
+        .set('Authorization', `Bearer ${token}`)
+
+    const testimonialId = listRes.body.data[0].testimonialId
+
+    await request(app)
+        .delete(`/api/testimonials/${testimonialId}`)
+        .set('Authorization', `Bearer ${token}`)
+
+    return testimonialId
+}
+
+module.exports = { 
+    registerAndLogin,
+    createAndDelete
+}
