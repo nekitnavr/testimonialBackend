@@ -1,7 +1,7 @@
-const ApiResponse = require("../lib/apiResponse")
-const { verifyToken } = require("../lib/utils")
+const ApiResponse = require('../lib/apiResponse')
+const { verifyToken } = require('../lib/utils')
 
-function auth(req, res, next){
+function auth(req, res, next) {
     const header = req.headers.authorization
     if (!header) return ApiResponse.unauthorized(res, 'Auth header required')
 
@@ -16,7 +16,7 @@ function auth(req, res, next){
     } catch (error) {
         return ApiResponse.unauthorized(res, 'User unathorized, invalid token')
     }
-    
+
     next()
 }
 

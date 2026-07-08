@@ -1,6 +1,6 @@
-const { canTransitionStatus } = require("../lib/utils");
+const { canTransitionStatus } = require('../lib/utils')
 
-describe('canTransitionStatus', ()=>{
+describe('canTransitionStatus', () => {
     it('allows transition to the next status', () => {
         expect(canTransitionStatus('draft', 'recording')).toBe(true)
         expect(canTransitionStatus('recording', 'processing')).toBe(true)

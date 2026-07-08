@@ -29,9 +29,7 @@ describe('GET /api/testimonials/analytics', () => {
             .set('Authorization', `Bearer ${token}`)
             .send({ customerName: 'Customer Two', rating: 2 })
 
-        const res = await request(app)
-            .get('/api/testimonials/analytics')
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get('/api/testimonials/analytics').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
         expect(res.body.data.overview.total).toBe(2)
@@ -58,9 +56,7 @@ describe('GET /api/testimonials/analytics', () => {
             .set('Authorization', `Bearer ${tokenB}`)
             .send({ customerName: 'Owned by B', rating: 1 })
 
-        const res = await request(app)
-            .get('/api/testimonials/analytics')
-            .set('Authorization', `Bearer ${tokenA}`)
+        const res = await request(app).get('/api/testimonials/analytics').set('Authorization', `Bearer ${tokenA}`)
 
         expect(res.status).toBe(200)
         expect(res.body.data.overview.total).toBe(2)
@@ -80,19 +76,13 @@ describe('GET /api/testimonials/analytics', () => {
             .set('Authorization', `Bearer ${token}`)
             .send({ customerName: 'To be deleted', rating: 2 })
 
-        const listRes = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
+        const listRes = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         const testimonialId = listRes.body.data[0].testimonialId
 
-        await request(app)
-            .delete(`/api/testimonials/${testimonialId}`)
-            .set('Authorization', `Bearer ${token}`)
+        await request(app).delete(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
 
-        const res = await request(app)
-            .get('/api/testimonials/analytics')
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get('/api/testimonials/analytics').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
         expect(res.body.data.overview.total).toBe(1)
@@ -101,9 +91,7 @@ describe('GET /api/testimonials/analytics', () => {
     it('returns 400 for an invalid date format', async () => {
         const token = await registerAndLogin('baddate@test.com')
 
-        const res = await request(app)
-            .get('/api/testimonials/analytics?startDate=not-a-date')
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get('/api/testimonials/analytics?startDate=not-a-date').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(400)
     })
@@ -134,9 +122,7 @@ describe('GET /api/testimonials/analytics', () => {
             .set('Authorization', `Bearer ${token}`)
             .send({ customerName: 'No Rating Customer' })
 
-        const res = await request(app)
-            .get('/api/testimonials/analytics')
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get('/api/testimonials/analytics').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
         expect(res.body.data.overview.total).toBe(1)
@@ -146,10 +132,7 @@ describe('GET /api/testimonials/analytics', () => {
     it('includes only testimonials created within the given date range', async () => {
         const token = await registerAndLogin('daterangeboth@test.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'In range' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({ customerName: 'In range' })
 
         const start = new Date(Date.now() - 60 * 60 * 1000).toISOString()
         const end = new Date(Date.now() + 60 * 60 * 1000).toISOString()
@@ -164,4 +147,3 @@ describe('GET /api/testimonials/analytics', () => {
         expect(res.body.data.period.endDate).toBe(end)
     })
 })
-

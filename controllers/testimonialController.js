@@ -4,14 +4,21 @@ const ApiResponse = require('../lib/apiResponse')
 const { randomUUID } = require('node:crypto')
 const { statuses, allowedChannels, allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
 const TestimonialSettings = require('../models/testimonialSettings')
-const { findTestimonial, getChannelsFromReq, getDateRange, getOverview, setFieldsFromReq, canTransitionStatus } = require('../lib/utils')
+const {
+    findTestimonial,
+    getChannelsFromReq,
+    getDateRange,
+    getOverview,
+    setFieldsFromReq,
+    canTransitionStatus,
+} = require('../lib/utils')
 
 async function createTestimonial(req, res, next) {
     try {
         const testimonial = new Testimonial({
             testimonialId: randomUUID(),
             userId: req.user.userId,
-            ...req.body,            
+            ...req.body,
             status: 'draft',
         })
         await testimonial.save()
@@ -34,21 +41,20 @@ async function getTestimonials(req, res, next) {
         }
         if (status) filter.status = status
 
-        let testimonials = await Testimonial
-            .find(filter)
+        let testimonials = await Testimonial.find(filter)
             .skip(toSkip)
             .sort({
-                [sort ? sort : 'createdAt']: -1
+                [sort ? sort : 'createdAt']: -1,
             })
             .limit(limit)
-            
-        let response = new ApiResponse(200, 'success',`User's testimonials`, testimonials)
+
+        let response = new ApiResponse(200, 'success', `User's testimonials`, testimonials)
         const total = await Testimonial.countDocuments(filter)
         response.pagination = {
-            "total": total,
-            "page": page,
-            "limit": limit,
-            "pages": Math.ceil(total / limit)
+            total: total,
+            page: page,
+            limit: limit,
+            pages: Math.ceil(total / limit),
         }
 
         return res.status(200).send(response)
@@ -57,7 +63,7 @@ async function getTestimonials(req, res, next) {
     }
 }
 
-async function getTestimonial(req, res, next){
+async function getTestimonial(req, res, next) {
     try {
         const { testimonialId } = req.params
 
@@ -70,7 +76,7 @@ async function getTestimonial(req, res, next){
     }
 }
 
-async function updateTestimonial(req,res, next){
+async function updateTestimonial(req, res, next) {
     try {
         const { testimonialId } = req.params
 
@@ -133,13 +139,13 @@ async function shareTestimonial(req, res, next) {
         if (!testimonial) return
 
         if (!['completed', 'shared'].includes(testimonial.status)) {
-            return ApiResponse.badRequest(res, `Cannot share testimonial in status "${testimonial.status}". Testimonial must be completed first.`)
+            return ApiResponse.badRequest(
+                res,
+                `Cannot share testimonial in status "${testimonial.status}". Testimonial must be completed first.`,
+            )
         }
 
-        testimonial.sharedChannels = [...new Set([
-            ...testimonial.sharedChannels,
-            ...req.body.channels
-        ])]
+        testimonial.sharedChannels = [...new Set([...testimonial.sharedChannels, ...req.body.channels])]
         if (testimonial.status == 'completed') testimonial.status = 'shared'
         if (!testimonial.sharedAt) testimonial.sharedAt = new Date()
         await testimonial.save()
@@ -154,7 +160,7 @@ async function shareTestimonial(req, res, next) {
 async function upsertTestimonialSettings(req, res, next) {
     try {
         let isNew = false
-        
+
         let settings = await TestimonialSettings.findOne({ userId: req.user.userId })
         if (!settings) {
             settings = await new TestimonialSettings({ userId: req.user.userId })
@@ -164,10 +170,8 @@ async function upsertTestimonialSettings(req, res, next) {
         setFieldsFromReq(req, settings, allowedTestimonialSettings)
         await settings.save()
 
-        if(isNew)
-            return ApiResponse.created(res, 'Created settings successfully')
-        else
-            return ApiResponse.success(res, 'Changed settings successfully')
+        if (isNew) return ApiResponse.created(res, 'Created settings successfully')
+        else return ApiResponse.success(res, 'Changed settings successfully')
     } catch (error) {
         next(error)
     }
@@ -189,24 +193,24 @@ async function getTestimonialSettings(req, res, next) {
 ///
 async function getTestimonialAnalytics(req, res, next) {
     try {
-        let {startDate, endDate} = getDateRange(req.query.startDate, req.query.endDate)
+        let { startDate, endDate } = getDateRange(req.query.startDate, req.query.endDate)
 
         startDate = startDate || new Date(0)
-        endDate = endDate || new Date() 
+        endDate = endDate || new Date()
 
         const filter = {
             isDeleted: false,
             createdAt: {
                 $gte: startDate,
-                $lte: endDate
+                $lte: endDate,
             },
-            userId: req.user.userId
+            userId: req.user.userId,
         }
-        
+
         const overview = await getOverview(filter)
         const data = {
             overview: overview,
-            period: { startDate, endDate }
+            period: { startDate, endDate },
         }
 
         return ApiResponse.success(res, 'Fetched analytics successfully', data)
@@ -225,5 +229,5 @@ module.exports = {
     shareTestimonial,
     upsertTestimonialSettings,
     getTestimonialSettings,
-    getTestimonialAnalytics
+    getTestimonialAnalytics,
 }

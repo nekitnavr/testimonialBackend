@@ -4,12 +4,12 @@ const counterSchema = new mongoose.Schema({
     counterName: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     sequence: {
         type: Number,
-        default: 0
-    }
+        default: 0,
+    },
 })
 
 const Counter = mongoose.model('Counter', counterSchema)

@@ -1,7 +1,7 @@
 const request = require('supertest')
 const app = require('../app')
 
-const {connect, clearDatabase, closeDatabase} = require('./dbSetup')
+const { connect, clearDatabase, closeDatabase } = require('./dbSetup')
 const User = require('../models/user')
 const { registerAndLogin, createAndDelete } = require('./testHelpers')
 
@@ -21,23 +21,18 @@ describe('POST /api/testimonials', () => {
     it('creates a testimonial for the authenticated user', async () => {
         const token = await registerAndLogin('creator@test.com')
 
-        const res = await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({
-                customerName: 'John Doe',
-                customerEmail: 'john@customer.com',
-                rating: 5,
-                text: 'Great service!'
-            })
+        const res = await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({
+            customerName: 'John Doe',
+            customerEmail: 'john@customer.com',
+            rating: 5,
+            text: 'Great service!',
+        })
 
         expect(res.status).toBe(201)
     })
 
     it('rejects request without auth token', async () => {
-        const res = await request(app)
-            .post('/api/testimonials')
-            .send({ customerName: 'No Auth' })
+        const res = await request(app).post('/api/testimonials').send({ customerName: 'No Auth' })
 
         expect(res.status).toBe(401)
     })
@@ -52,15 +47,11 @@ describe('GET /api/testimonials/:testimonialId', () => {
             .set('Authorization', `Bearer ${token}`)
             .send({ customerName: 'Jane Doe' })
 
-        const testimonials = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
+        const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         const testimonialId = testimonials.body.data[0].testimonialId
 
-        const res = await request(app)
-            .get(`/api/testimonials/${testimonialId}`)
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
         expect(res.body.data.customerName).toBe('Jane Doe')
@@ -70,20 +61,13 @@ describe('GET /api/testimonials/:testimonialId', () => {
         const tokenA = await registerAndLogin('userA@test.com')
         const tokenB = await registerAndLogin('userB@test.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${tokenA}`)
-            .send({ customerName: 'Owned by A' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${tokenA}`).send({ customerName: 'Owned by A' })
 
-        const testimonials = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${tokenA}`)
+        const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${tokenA}`)
 
         const testimonialId = testimonials.body.data[0].testimonialId
 
-        const res = await request(app)
-            .get(`/api/testimonials/${testimonialId}`)
-            .set('Authorization', `Bearer ${tokenB}`)
+        const res = await request(app).get(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${tokenB}`)
 
         expect(res.status).toBe(403)
     })
@@ -93,14 +77,9 @@ describe('PATCH /api/testimonials/:testimonialId/status', () => {
     it('allows valid status transition', async () => {
         const token = await registerAndLogin('status@test.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Status Test' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({ customerName: 'Status Test' })
 
-        const testimonials = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
+        const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         const testimonialId = testimonials.body.data[0].testimonialId
 
@@ -115,14 +94,9 @@ describe('PATCH /api/testimonials/:testimonialId/status', () => {
     it('rejects invalid status transition (skipping a step)', async () => {
         const token = await registerAndLogin('badstatus@test.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Bad Status Test' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({ customerName: 'Bad Status Test' })
 
-        const testimonials = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
+        const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         const testimonialId = testimonials.body.data[0].testimonialId
 
@@ -135,28 +109,19 @@ describe('PATCH /api/testimonials/:testimonialId/status', () => {
     })
 })
 
-describe('DELETE /api/testimonials/:testimonialId', ()=>{
-    it('deletes an existing testimonial', async ()=>{
+describe('DELETE /api/testimonials/:testimonialId', () => {
+    it('deletes an existing testimonial', async () => {
         const token = await registerAndLogin('test@email.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Status Test' })
-        
-        const testimonials = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({ customerName: 'Status Test' })
+
+        const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         const testimonialId = testimonials.body.data[0].testimonialId
 
-        const res = await request(app)
-            .delete(`/api/testimonials/${testimonialId}`)
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).delete(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
 
-        const getRes = await request(app)
-            .get(`/api/testimonials/${testimonialId}`)
-            .set('Authorization', `Bearer ${token}`)
+        const getRes = await request(app).get(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
         expect(getRes.status).toBe(404)
@@ -166,20 +131,13 @@ describe('DELETE /api/testimonials/:testimonialId', ()=>{
         const tokenA = await registerAndLogin('ownerA@test.com')
         const tokenB = await registerAndLogin('ownerB@test.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${tokenA}`)
-            .send({ customerName: 'Owned by A' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${tokenA}`).send({ customerName: 'Owned by A' })
 
-        const testimonials = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${tokenA}`)
+        const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${tokenA}`)
 
         const testimonialId = testimonials.body.data[0].testimonialId
 
-        const res = await request(app)
-            .delete(`/api/testimonials/${testimonialId}`)
-            .set('Authorization', `Bearer ${tokenB}`)
+        const res = await request(app).delete(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${tokenB}`)
 
         expect(res.status).toBe(403)
     })
@@ -189,14 +147,9 @@ describe('POST /api/testimonials/:testimonialId/share', () => {
     it('rejects sharing a testimonial that is still in draft', async () => {
         const token = await registerAndLogin('sharedraft@test.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Draft Share Test' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({ customerName: 'Draft Share Test' })
 
-        const listRes = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
+        const listRes = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         const testimonialId = listRes.body.data[0].testimonialId
 
@@ -210,7 +163,7 @@ describe('POST /api/testimonials/:testimonialId/share', () => {
 })
 
 describe('GET /api/testimonials (pagination and filters)', () => {
-    async function createTestimonials(token, count){
+    async function createTestimonials(token, count) {
         for (let i = 0; i < count; i++) {
             await request(app)
                 .post('/api/testimonials')
@@ -223,9 +176,7 @@ describe('GET /api/testimonials (pagination and filters)', () => {
         const token = await registerAndLogin('paginationowner@test.com')
         await createTestimonials(token, 5)
 
-        const res = await request(app)
-            .get('/api/testimonials?page=1&limit=2')
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get('/api/testimonials?page=1&limit=2').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
         expect(res.body.data).toHaveLength(2)
@@ -233,7 +184,7 @@ describe('GET /api/testimonials (pagination and filters)', () => {
             total: 5,
             page: 1,
             limit: 2,
-            pages: 3
+            pages: 3,
         })
     })
 
@@ -241,9 +192,7 @@ describe('GET /api/testimonials (pagination and filters)', () => {
         const token = await registerAndLogin('page2owner@test.com')
         await createTestimonials(token, 5)
 
-        const res = await request(app)
-            .get('/api/testimonials?page=3&limit=2')
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get('/api/testimonials?page=3&limit=2').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
         expect(res.body.data).toHaveLength(1)
@@ -252,14 +201,9 @@ describe('GET /api/testimonials (pagination and filters)', () => {
     it('filters testimonials by status', async () => {
         const token = await registerAndLogin('statusfilter@test.com')
 
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Still Draft' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({ customerName: 'Still Draft' })
 
-        const listRes = await request(app)
-            .get('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
+        const listRes = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         const testimonialId = listRes.body.data[0].testimonialId
 
@@ -268,13 +212,9 @@ describe('GET /api/testimonials (pagination and filters)', () => {
             .set('Authorization', `Bearer ${token}`)
             .send({ status: 'recording' })
 
-        const draftRes = await request(app)
-            .get('/api/testimonials?status=draft')
-            .set('Authorization', `Bearer ${token}`)
+        const draftRes = await request(app).get('/api/testimonials?status=draft').set('Authorization', `Bearer ${token}`)
 
-        const recordingRes = await request(app)
-            .get('/api/testimonials?status=recording')
-            .set('Authorization', `Bearer ${token}`)
+        const recordingRes = await request(app).get('/api/testimonials?status=recording').set('Authorization', `Bearer ${token}`)
 
         expect(draftRes.body.data).toHaveLength(0)
         expect(recordingRes.body.data).toHaveLength(1)
@@ -283,9 +223,7 @@ describe('GET /api/testimonials (pagination and filters)', () => {
     it('rejects an invalid sort field', async () => {
         const token = await registerAndLogin('badsort@test.com')
 
-        const res = await request(app)
-            .get('/api/testimonials?sort=password')
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get('/api/testimonials?sort=password').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(400)
     })
@@ -296,9 +234,7 @@ describe('Soft-deleted testimonial access', () => {
         const token = await registerAndLogin('softget@test.com')
         const testimonialId = await createAndDelete(token)
 
-        const res = await request(app)
-            .get(`/api/testimonials/${testimonialId}`)
-            .set('Authorization', `Bearer ${token}`)
+        const res = await request(app).get(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(404)
     })
