@@ -65,4 +65,22 @@ describe('POST /api/auth/register', () => {
         const savedUser = await User.findOne({ email: 'norole@test.com' })
         expect(savedUser.role).toBe('owner')
     })
+
+    it(`doesn't assign the userId that is passed in the body`, async () => {
+        const res = await request(app).post('/api/auth/register').send({
+            email: 'norole@test.com',
+            password: 'password123',
+            businessName: 'No Role Biz',
+            userId: 999,
+        })
+        const res2 = await request(app).post('/api/auth/register').send({
+            email: 'norole2@test.com',
+            password: 'password123',
+            businessName: 'No Role Biz',
+            userId: 'asdfasdflkhj',
+        })
+
+        expect(res.body.data.user.userId).not.toBe(999)
+        expect(res2.body.data.user.userId).not.toBe('asdfasdflkhj')
+    })
 })

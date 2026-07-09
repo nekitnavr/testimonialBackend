@@ -2,7 +2,7 @@ POST http://localhost:3000/api/auth/register
 content-type: application/json
 
 {
-    "email":"dfsd@das.com",
+    "email":"asdf@asdf.com",
     "password":"123",
     "businessName":"company name",
     "role":"owner",

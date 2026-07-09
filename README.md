@@ -50,17 +50,17 @@ content-type: application/json
   "message": "User created",
   "data": {
     "user": {
-      "userId": 11,
-      "email": "john@email.com",
-      "businessName": "company",
-      "role": "staff",
+      "userId": 25,
+      "email": "asdf@asdf.com",
+      "businessName": "company name",
+      "role": "owner",
       "isActive": true,
-      "_id": "6a4128df02787f351a5959fe",
-      "createdAt": "2026-06-28T13:59:59.739Z",
-      "updatedAt": "2026-06-28T13:59:59.739Z",
+      "_id": "6a4fe478aa0a280112595e3b",
+      "createdAt": "2026-07-09T18:12:08.714Z",
+      "updatedAt": "2026-07-09T18:12:08.714Z",
       "__v": 0
     },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlbWFpbCI6ImpvaG5AZW1haWwuY29tIiwiYnVzaW5lc3NOYW1lIjoiY29tcGFueSIsInJvbGUiOiJzdGFmZiIsImlzQWN0aXZlIjp0cnVlLCJfaWQiOiI2YTQxMjhkZjAyNzg3ZjM1MWE1OTU5ZmUiLCJjcmVhdGVkQXQiOiIyMDI2LTA2LTI4VDEzOjU5OjU5LjczOVoiLCJ1cGRhdGVkQXQiOiIyMDI2LTA2LTI4VDEzOjU5OjU5LjczOVoiLCJfX3YiOjAsImlhdCI6MTc4MjY1NTE5OSwiZXhwIjoxNzgzMjU5OTk5fQ.N29Y3YPWQadsIjZsrW_HT_lGs4-3jrGRyfvIrAW8GUY"
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI1LCJlbWFpbCI6ImFzZGZAYXNkZi5jb20iLCJpYXQiOjE3ODM2MjA3MjgsImV4cCI6MTc4NDIyNTUyOH0.Se_4a4MVwn9Tmo4VyqgZXZGKAx-dBky7pJqF8QGkWKY"
   }
 }
 ```
@@ -206,7 +206,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
                 "draft": 5,
                 "shared": 1
             },
-            "avgRating": 5
+            "averageRating": 5
         },
         "period": {
             "startDate": "2025-01-01T12:00:00.000Z",
@@ -239,7 +239,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
 - Добавил rate limiting
 - Добавил unit тесты для auth и обновления статуса
 - Добавил integration тесты для CRUD endpoint-ов и аналитики
-- Вынес бизнес-логику из контроллеров в сервисы, добавил централизованный обработчик ошибок
+- Добавил централизованный обработчик ошибок
 - Добавил prettier и ESLint для однородного и чистого кода
 
 - Использовал бы в следующий раз плагин для автоинкремента ID.
