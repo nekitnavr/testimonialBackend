@@ -29,3 +29,15 @@ module.exports.consentGivenRule = {
     optional: true,
     isBoolean: { errorMessage: 'Consent given must be boolean' },
 }
+
+module.exports.videoUrlRule = {
+    optional: true,
+    trim: true,
+    isURL: { errorMessage: 'videoUrl must be a valid URL' },
+}
+
+module.exports.textRule = {
+    optional: true,
+    trim: true,
+    isString: { errorMessage: 'text must be a string' },
+}

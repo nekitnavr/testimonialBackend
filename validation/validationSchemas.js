@@ -1,7 +1,7 @@
 const { Error } = require('mongoose')
 const { roles, statuses, allowedChannels, allowedFieldsToSortBy } = require('../lib/constants')
 const User = require('../models/user')
-const { customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule } = require('./validationRules')
+const { customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule, videoUrlRule, textRule } = require('./validationRules')
 
 const checkEmailExists = async (email) => {
     const isDuplicated = await User.exists({ email: email })
@@ -81,7 +81,9 @@ module.exports.createTestimonialSchema = {
     },
     customerEmail: customerEmailRule,
     customerPhone: customerPhoneRule,
+    videoUrl: videoUrlRule,
     rating: ratingRule,
+    text: textRule,
     consentGiven: consentGivenRule,
 }
 
@@ -130,17 +132,9 @@ module.exports.updateTestimonialSchema = {
     },
     customerEmail: customerEmailRule,
     customerPhone: customerPhoneRule,
-    videoUrl: {
-        optional: true,
-        trim: true,
-        isURL: { errorMessage: 'videoUrl must be a valid URL' },
-    },
+    videoUrl: videoUrlRule,
     rating: ratingRule,
-    text: {
-        optional: true,
-        trim: true,
-        isString: { errorMessage: 'text must be a string' },
-    },
+    text: textRule,
     consentGiven: consentGivenRule,
 }
 
