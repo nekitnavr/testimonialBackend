@@ -1,17 +1,9 @@
-const mongoose = require('mongoose')
 const Testimonial = require('../models/testimonial')
 const ApiResponse = require('../lib/apiResponse')
 const { randomUUID } = require('node:crypto')
-const { statuses, allowedChannels, allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
+const { allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
 const TestimonialSettings = require('../models/testimonialSettings')
-const {
-    findTestimonial,
-    getChannelsFromReq,
-    getDateRange,
-    getOverview,
-    setFieldsFromReq,
-    canTransitionStatus,
-} = require('../lib/utils')
+const { findTestimonial, getDateRange, getOverview, setFieldsFromReq, canTransitionStatus } = require('../lib/utils')
 
 async function createTestimonial(req, res, next) {
     try {
@@ -35,20 +27,20 @@ async function getTestimonials(req, res, next) {
         const page = req.query.page ? parseInt(req.query.page) : 1
         const limit = req.query.limit ? parseInt(req.query.limit) : 10
         const toSkip = (page - 1) * limit
-        let filter = {
+        const filter = {
             userId: req.user.userId,
             isDeleted: false,
         }
         if (status) filter.status = status
 
-        let testimonials = await Testimonial.find(filter)
+        const testimonials = await Testimonial.find(filter)
             .skip(toSkip)
             .sort({
                 [sort ? sort : 'createdAt']: -1,
             })
             .limit(limit)
 
-        let response = new ApiResponse(200, 'success', `User's testimonials`, testimonials)
+        const response = new ApiResponse(200, 'success', `User's testimonials`, testimonials)
         const total = await Testimonial.countDocuments(filter)
         response.pagination = {
             total: total,
@@ -80,7 +72,7 @@ async function updateTestimonial(req, res, next) {
     try {
         const { testimonialId } = req.params
 
-        let testimonial = await findTestimonial(req, res, testimonialId)
+        const testimonial = await findTestimonial(req, res, testimonialId)
         if (!testimonial) return
 
         setFieldsFromReq(req, testimonial, allowedTestimonialFields)
@@ -105,7 +97,7 @@ async function updateStatus(req, res, next) {
         }
 
         testimonial.status = status
-        if (status == 'shared') testimonial.sharedAt = new Date()
+        if (status === 'shared') testimonial.sharedAt = new Date()
         await testimonial.save()
 
         return ApiResponse.success(res, 'Testimonial status updated')
@@ -146,7 +138,7 @@ async function shareTestimonial(req, res, next) {
         }
 
         testimonial.sharedChannels = [...new Set([...testimonial.sharedChannels, ...req.body.channels])]
-        if (testimonial.status == 'completed') testimonial.status = 'shared'
+        if (testimonial.status === 'completed') testimonial.status = 'shared'
         if (!testimonial.sharedAt) testimonial.sharedAt = new Date()
         await testimonial.save()
 

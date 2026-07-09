@@ -13,7 +13,7 @@ function auth(req, res, next) {
     try {
         const user = verifyToken(token)
         req.user = user
-    } catch (error) {
+    } catch {
         return ApiResponse.unauthorized(res, 'User unathorized, invalid token')
     }
 

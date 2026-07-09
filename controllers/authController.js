@@ -1,10 +1,8 @@
-const mongoose = require('mongoose')
 const User = require('../models/user')
 const bcrypt = require('bcrypt')
-const { roles, saltRounds } = require('../lib/constants')
+const { saltRounds } = require('../lib/constants')
 const ApiResponse = require('../lib/apiResponse')
 const { signToken } = require('../lib/utils')
-const { validationResult } = require('express-validator')
 const Counter = require('../models/counter')
 
 async function register(req, res, next) {

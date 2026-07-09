@@ -2,7 +2,6 @@ const request = require('supertest')
 const app = require('../app')
 
 const { connect, clearDatabase, closeDatabase } = require('./dbSetup')
-const User = require('../models/user')
 const { registerAndLogin, createAndDelete } = require('./testHelpers')
 
 beforeAll(async () => {
@@ -42,10 +41,7 @@ describe('GET /api/testimonials/:testimonialId', () => {
     it('returns the testimonial for its owner', async () => {
         const token = await registerAndLogin('reader@test.com')
 
-        const createRes = await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Jane Doe' })
+        await request(app).post('/api/testimonials').set('Authorization', `Bearer ${token}`).send({ customerName: 'Jane Doe' })
 
         const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 

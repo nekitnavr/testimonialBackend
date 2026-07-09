@@ -1,5 +1,5 @@
 const { Error } = require('mongoose')
-const { roles, statuses, allowedChannels, allowedFieldsToSortBy, allowedTestimonialSettings } = require('../lib/constants')
+const { roles, statuses, allowedChannels, allowedFieldsToSortBy } = require('../lib/constants')
 const User = require('../models/user')
 const { customerEmailRule, customerPhoneRule, ratingRule, consentGivenRule } = require('./validationRules')
 

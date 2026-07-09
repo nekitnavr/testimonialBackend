@@ -12,6 +12,9 @@
 1. `npm start`
 
 - `npm test` для запуска тестов
+- `npm format` для запуска prettier
+- `npm lint` для проверки ESLint
+- `npm lint:fix` для изменений ESLint
 
 ## Список необходимых переменных окружения
 

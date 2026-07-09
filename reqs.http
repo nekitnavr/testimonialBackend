@@ -43,9 +43,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlb
 
 ###
 
-GET  http://localhost:3000/api/testimonials/8ac9936b-46a5-4e22-93be-ddc99ffe378f HTTP/1.1
+GET  http://localhost:3000/api/testimonials/5786aa41-74eb-4c37-b1f8-90ed2a9a1c77 HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODIzMDY5MTYsImV4cCI6MTc4MjkxMTcxNn0.mS_wESsexUzqBxF6iiuiCnKA1jusfHJFdZvwnk9ODdY
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODM1OTYzOTMsImV4cCI6MTc4NDIwMTE5M30.aSzr2N1lHqKtnfmxXEz6Zya70pLmB0sr_UzmDo97veI
 
 ###
 

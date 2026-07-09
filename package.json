@@ -9,7 +9,9 @@
     "scripts": {
         "start": "node server.js",
         "test": "jest",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix"
     },
     "jest": {
         "setupFiles": [
@@ -26,6 +28,9 @@
         "mongoose": "^9.7.2"
     },
     "devDependencies": {
+        "eslint": "^10.6.0",
+        "eslint-config-prettier": "^10.1.8",
+        "globals": "^17.7.0",
         "jest": "^30.4.2",
         "mongodb-memory-server": "^11.2.0",
         "prettier": "^3.9.4",
