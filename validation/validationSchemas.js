@@ -123,9 +123,24 @@ module.exports.getTestimonialsSchema = {
 }
 
 module.exports.updateTestimonialSchema = {
+    customerName: {
+        optional: true,
+        trim: true,
+        notEmpty: { errorMessage: 'Customer name must not be empty' },
+    },
     customerEmail: customerEmailRule,
     customerPhone: customerPhoneRule,
+    videoUrl: {
+        optional: true,
+        trim: true,
+        isURL: { errorMessage: 'videoUrl must be a valid URL' },
+    },
     rating: ratingRule,
+    text: {
+        optional: true,
+        trim: true,
+        isString: { errorMessage: 'text must be a string' },
+    },
     consentGiven: consentGivenRule,
 }
 

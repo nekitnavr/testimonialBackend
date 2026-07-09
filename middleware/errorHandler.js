@@ -1,6 +1,6 @@
 const ApiResponse = require('../lib/apiResponse')
 
-module.exports = (error, req, res) => {
+module.exports = (error, req, res, _next) => {
     if (error.code === 11000) {
         const field = Object.keys(error.keyPattern || {})[0] || 'field'
         return ApiResponse.badRequest(res, `${field} already exists`)

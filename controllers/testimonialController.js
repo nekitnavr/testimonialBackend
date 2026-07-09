@@ -4,13 +4,14 @@ const { randomUUID } = require('node:crypto')
 const { allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
 const TestimonialSettings = require('../models/testimonialSettings')
 const { findTestimonial, getDateRange, getOverview, setFieldsFromReq, canTransitionStatus } = require('../lib/utils')
+const { matchedData } = require('express-validator')
 
 async function createTestimonial(req, res, next) {
     try {
         const testimonial = new Testimonial({
             testimonialId: randomUUID(),
+            ...matchedData(req, { locations: ['body'] }),
             userId: req.user.userId,
-            ...req.body,
             status: 'draft',
         })
         await testimonial.save()
@@ -86,7 +87,7 @@ async function updateTestimonial(req, res, next) {
 
 async function updateStatus(req, res, next) {
     try {
-        const { status } = req.body
+        const { status } = matchedData(req, { locations: ['body'] })
         const { testimonialId } = req.params
 
         const testimonial = await findTestimonial(req, res, testimonialId)
@@ -137,7 +138,9 @@ async function shareTestimonial(req, res, next) {
             )
         }
 
-        testimonial.sharedChannels = [...new Set([...testimonial.sharedChannels, ...req.body.channels])]
+        testimonial.sharedChannels = [
+            ...new Set([...testimonial.sharedChannels, ...matchedData(req, { locations: ['body'] }).channels]),
+        ]
         if (testimonial.status === 'completed') testimonial.status = 'shared'
         if (!testimonial.sharedAt) testimonial.sharedAt = new Date()
         await testimonial.save()

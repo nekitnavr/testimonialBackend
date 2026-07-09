@@ -4,10 +4,11 @@ const { saltRounds } = require('../lib/constants')
 const ApiResponse = require('../lib/apiResponse')
 const { signToken } = require('../lib/utils')
 const Counter = require('../models/counter')
+const { matchedData } = require('express-validator')
 
 async function register(req, res, next) {
     try {
-        const { password, ...data } = req.body
+        const { password, ...data } = matchedData(req, { locations: ['body'] })
 
         const counter = await Counter.findOneAndUpdate(
             { counterName: 'userId' },
@@ -17,9 +18,9 @@ async function register(req, res, next) {
         const hashedPassword = await bcrypt.hash(password, saltRounds)
 
         const user = new User({
+            ...data,
             userId: counter.sequence,
             password: hashedPassword,
-            ...data,
         })
         await user.save()
 
@@ -40,7 +41,7 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
     try {
-        const { email, password } = req.body
+        const { email, password } = matchedData(req, { locations: ['body'] })
 
         const user = await User.findOne({ email: email })
         if (!user) return ApiResponse.badRequest(res, `User doesn't exist`)
