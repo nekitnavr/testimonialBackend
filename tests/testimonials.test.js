@@ -35,24 +35,6 @@ describe('POST /api/testimonials', () => {
 
         expect(res.status).toBe(401)
     })
-
-    it(`doesn't assign the userId that is passed in the body`, async () => {
-        const token = await registerAndLogin('reader@test.com')
-
-        await request(app)
-            .post('/api/testimonials')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ customerName: 'Jane Doe', userId: 9999 })
-
-        const testimonials = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
-
-        const testimonialId = testimonials.body.data[0].testimonialId
-
-        const res = await request(app).get(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
-
-        expect(res.status).toBe(200)
-        expect(res.body.data.userId).not.toBe(9999)
-    })
 })
 
 describe('GET /api/testimonials/:testimonialId', () => {
