@@ -245,5 +245,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
 - Добавил централизованный обработчик ошибок
 - Добавил prettier и ESLint для однородного и чистого кода
 - Вынес бизнес-логику в сервисы
+- Добавил CI workflow
 
 - Использовал бы в следующий раз плагин для автоинкремента ID.
