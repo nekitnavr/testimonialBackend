@@ -12,6 +12,7 @@
 1. `npm start`
 
 - `npm test` для запуска тестов
+- `npm test:coverage` для покрытия тестов
 - `npm format` для запуска prettier
 - `npm lint` для проверки ESLint
 - `npm lint:fix` для изменений ESLint
@@ -245,6 +246,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
 - Добавил централизованный обработчик ошибок
 - Добавил prettier и ESLint для однородного и чистого кода
 - Вынес бизнес-логику в сервисы
-- Добавил CI workflow
+- Добавил test CI workflow
 
 - Использовал бы в следующий раз плагин для автоинкремента ID.
