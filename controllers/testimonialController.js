@@ -16,7 +16,7 @@ async function createTestimonial(req, res, next) {
         })
         await testimonial.save()
 
-        return ApiResponse.created(res, 'Testimonial created')
+        return ApiResponse.created(res, 'Testimonial created', testimonial)
     } catch (error) {
         next(error)
     }
@@ -34,15 +34,16 @@ async function getTestimonials(req, res, next) {
         }
         if (status) filter.status = status
 
-        const testimonials = await Testimonial.find(filter)
-            .skip(toSkip)
-            .sort({
-                [sort ? sort : 'createdAt']: -1,
-            })
-            .limit(limit)
+        const [testimonials, total] = await Promise.all([
+            Testimonial.find(filter)
+                .sort({ [sort ? sort : 'createdAt']: -1 })
+                .skip(toSkip)
+                .limit(limit)
+                .lean(),
+            Testimonial.countDocuments(filter),
+        ])
 
         const response = new ApiResponse(200, 'success', `User's testimonials`, testimonials)
-        const total = await Testimonial.countDocuments(filter)
         response.pagination = {
             total: total,
             page: page,

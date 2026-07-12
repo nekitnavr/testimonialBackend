@@ -259,3 +259,139 @@ describe('Soft-deleted testimonial access', () => {
         expect(res.status).toBe(404)
     })
 })
+
+describe('Additional edge cases', () => {
+    it('validates and rejects invalid sendingOptions values', async () => {
+        const token = await registerAndLogin('sendingvalid@test.com')
+
+        const validRes = await request(app)
+            .post('/api/testimonials/settings')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ sendingOptions: ['email', 'facebook'] })
+        expect(validRes.status).toBeLessThan(300)
+
+        const invalidRes = await request(app)
+            .post('/api/testimonials/settings')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ sendingOptions: ['telegram'] })
+        expect(invalidRes.status).toBe(400)
+    })
+
+    it('returns byStatus with zero counts for statuses with no testimonials', async () => {
+        const token = await registerAndLogin('zerostatus@test.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ customerName: 'Only Draft', rating: 4 })
+
+        const res = await request(app).get('/api/testimonials/analytics').set('Authorization', `Bearer ${token}`)
+
+        const { byStatus } = res.body.data.overview
+
+        expect(byStatus.draft).toBe(1)
+        expect(byStatus.recording).toBe(0)
+        expect(byStatus.processing).toBe(0)
+        expect(byStatus.completed).toBe(0)
+        expect(byStatus.shared).toBe(0)
+    })
+
+    it('returns all statuses at zero when there are no testimonials at all', async () => {
+        const token = await registerAndLogin('nostatuses@test.com')
+
+        const res = await request(app).get('/api/testimonials/analytics').set('Authorization', `Bearer ${token}`)
+
+        const { byStatus, total, averageRating } = res.body.data.overview
+
+        const { statuses } = require('../lib/constants')
+        statuses.forEach((status) => {
+            expect(byStatus[status]).toBe(0)
+        })
+
+        expect(total).toBe(0)
+        expect(averageRating).toBe(0)
+    })
+
+    it('rejects an excessively large pagination limit', async () => {
+        const token = await registerAndLogin('maxlimit@test.com')
+
+        const res = await request(app).get('/api/testimonials?limit=999999999').set('Authorization', `Bearer ${token}`)
+
+        expect(res.status).toBe(400)
+    })
+
+    it('accepts the maximum allowed pagination limit', async () => {
+        const token = await registerAndLogin('boundarylimit@test.com')
+
+        const res = await request(app).get('/api/testimonials?limit=100').set('Authorization', `Bearer ${token}`)
+
+        expect(res.status).toBe(200)
+    })
+
+    it('does not leak internal error details on an unexpected 500', async () => {
+        const token = await registerAndLogin('generic500@test.com')
+
+        const Testimonial = require('../models/testimonial')
+        jest.spyOn(Testimonial, 'find').mockImplementation(() => {
+            throw new Error('Internal DB connection string leaked: mongodb://secret')
+        })
+
+        const res = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
+
+        expect(res.status).toBe(500)
+        expect(res.body.message).not.toMatch('Internal DB connection string leaked: mongodb://secret')
+
+        jest.restoreAllMocks()
+    })
+
+    it('registers successfully with different email casing and treats them as the same user', async () => {
+        await request(app).post('/api/auth/register').send({
+            email: 'CaseTest@Example.com',
+            password: 'password123',
+            businessName: 'Case Biz',
+        })
+
+        const res = await request(app).post('/api/auth/register').send({
+            email: 'casetest@example.com',
+            password: 'password456',
+            businessName: 'Case Biz Two',
+        })
+
+        expect(res.status).toBe(400)
+    })
+
+    it('returns 400 (not 500) on an empty body for testimonial update', async () => {
+        const token = await registerAndLogin('emptyupdate@test.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ customerName: 'Update Me', rating: 3 })
+
+        const listRes = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
+        const testimonialId = listRes.body.data[0].testimonialId
+
+        const res = await request(app).put(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`).send({})
+
+        expect(res.status).not.toBe(500)
+    })
+
+    it('handles soft-deleting an already soft-deleted testimonial gracefully', async () => {
+        const token = await registerAndLogin('doubledelete@test.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ customerName: 'Delete Twice', rating: 3 })
+
+        const listRes = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
+        const testimonialId = listRes.body.data[0].testimonialId
+
+        const firstDelete = await request(app).delete(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
+        expect(firstDelete.status).toBe(200)
+
+        const secondDelete = await request(app).delete(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`)
+
+        expect(secondDelete.status).toBe(404)
+    })
+})

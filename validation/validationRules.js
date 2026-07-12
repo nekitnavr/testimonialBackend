@@ -4,6 +4,7 @@ module.exports.customerEmailRule = {
     isEmail: {
         errorMessage: 'Invalid email',
     },
+    normalizeEmail: true,
 }
 
 module.exports.customerPhoneRule = {

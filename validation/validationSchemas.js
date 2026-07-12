@@ -42,19 +42,26 @@ const removeRepeatingChannels = (channels) => {
     return channels
 }
 
+const toLowerCaseSanitizer = (value) => value.toLowerCase()
+
 module.exports.createUserSchema = {
     email: {
         trim: true,
         isEmail: {
             errorMessage: 'Invalid email',
         },
+        customSanitizer: {
+            options: toLowerCaseSanitizer,
+        },
         custom: {
             options: checkEmailExists,
         },
     },
     password: {
-        trim: true,
-        notEmpty: { errorMessage: 'Password must not be empty' },
+        isLength: {
+            options: { min: 8, max: 72 },
+            errorMessage: 'Password must be between 8 and 72 characters',
+        },
     },
     businessName: {
         trim: true,
@@ -70,8 +77,14 @@ module.exports.createUserSchema = {
 }
 
 module.exports.loginSchema = {
-    email: { trim: true, notEmpty: { errorMessage: 'Email required' } },
-    password: { trim: true, notEmpty: { errorMessage: 'Password required' } },
+    email: {
+        trim: true,
+        customSanitizer: {
+            options: toLowerCaseSanitizer,
+        },
+        notEmpty: { errorMessage: 'Email required' },
+    },
+    password: { notEmpty: { errorMessage: 'Password required' } },
 }
 
 module.exports.createTestimonialSchema = {
@@ -109,6 +122,7 @@ module.exports.getTestimonialsSchema = {
         isInt: {
             options: {
                 min: 1,
+                max: 100,
             },
             errorMessage: 'Limit must be greater than 0',
         },

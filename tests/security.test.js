@@ -11,7 +11,6 @@ beforeAll(async () => {
 
 afterEach(async () => {
     await clearDatabase()
-    jest.restoreAllMocks()
 })
 
 afterAll(async () => {
@@ -100,12 +99,13 @@ describe('errorHandler catches Mongoose errors correctly', () => {
 
         const count = await User.countDocuments({ email: 'forcedrace@test.com' })
         expect(count).toBe(1)
+
+        jest.restoreAllMocks()
     })
 
     it('returns 400 (not 500) when Mongoose validation fails on testimonial rating bounds', async () => {
         const token = await registerAndLogin('ratingfail@test.com')
 
-        // rating: 10 отклоняется express-validator (ratingRule, max: 5)
         const res = await request(app)
             .post('/api/testimonials')
             .set('Authorization', `Bearer ${token}`)
@@ -117,9 +117,6 @@ describe('errorHandler catches Mongoose errors correctly', () => {
     it('returns 400 (not 500) on CastError from an invalid ObjectId-like param', async () => {
         const token = await registerAndLogin('casterror@test.com')
 
-        // testimonialId — String в схеме, не ObjectId, так что CastError тут
-        // маловероятен через params; проверяем через query, где page/limit
-        // должны быть числами — express-validator ловит это первой линией
         const res = await request(app).get('/api/testimonials?page=not-a-number').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(400)

@@ -21,6 +21,8 @@ const testimonialSchema = new mongoose.Schema(
         customerEmail: {
             type: String,
             required: false,
+            lowercase: true,
+            trim: true,
         },
         customerPhone: {
             type: String,

@@ -23,7 +23,7 @@ content-type: application/json
 
 POST http://localhost:3000/api/testimonials HTTP/1.1
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImVtYWlsIjoic2lnbWEyQHRoaW5nLmNvbSIsImlhdCI6MTc4MzAxOTA5NiwiZXhwIjoxNzgzNjIzODk2fQ.MFMEvfZnVX1tTLfFypqYklMBrTRUvuYGrCj4rxYtxAE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODM4NTAxNTgsImV4cCI6MTc4NDQ1NDk1OH0.lZTtZdD7etTgH0GreJS5ej6bjEqnR-dksozN1OFoGK8
 
 {
     "customerName": "Neil",

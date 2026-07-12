@@ -141,6 +141,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtY
 `rating`,
 `text`,
 `consentGiven` в теле.  
+Он реализует частичное обновление согласно фактическому контракту
+тестового задания.  
 Пример запроса:
 
 ```json

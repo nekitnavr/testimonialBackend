@@ -15,6 +15,36 @@ afterAll(async () => {
     await closeDatabase()
 })
 
+describe('DB level validation for testimonialSettings', () => {
+    it('rejects negative defaultVideoLength at the model level even bypassing HTTP validation', async () => {
+        const TestimonialSettings = require('../models/testimonialSettings')
+
+        const settings = new TestimonialSettings({ userId: 1, defaultVideoLength: -5 })
+        await expect(settings.validate()).rejects.toThrow()
+    })
+
+    it('rejects a non-positive integer in videoLengthOptions at the model level', async () => {
+        const TestimonialSettings = require('../models/testimonialSettings')
+
+        const settings = new TestimonialSettings({ userId: 1, videoLengthOptions: [5, -1, 10] })
+        await expect(settings.validate()).rejects.toThrow()
+    })
+
+    it('rejects an invalid channel in sendingOptions at the model level', async () => {
+        const TestimonialSettings = require('../models/testimonialSettings')
+
+        const settings = new TestimonialSettings({ userId: 1, sendingOptions: ['carrier_pigeon'] })
+        await expect(settings.validate()).rejects.toThrow()
+    })
+
+    it('rejects an empty string in questionnaire at the model level', async () => {
+        const TestimonialSettings = require('../models/testimonialSettings')
+
+        const settings = new TestimonialSettings({ userId: 1, questionnaire: ['Valid question', '   '] })
+        await expect(settings.validate()).rejects.toThrow()
+    })
+})
+
 describe('POST /api/testimonials/settings', () => {
     it('creates settings on first upsert (201) and updates on second (200)', async () => {
         const token = await registerAndLogin('settingsowner@test.com')
