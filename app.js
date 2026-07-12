@@ -5,6 +5,7 @@ const auth = require('./middleware/auth')
 const rateLimit = require('express-rate-limit')
 const ApiResponse = require('./lib/apiResponse')
 const errorHandler = require('./middleware/errorHandler')
+const notFoundHandler = require('./middleware/notFoundHandler')
 
 const app = express()
 
@@ -21,6 +22,7 @@ const limiter = rateLimit({
 app.use('/api/auth', limiter, authRouter)
 app.use('/api/testimonials', auth, testimonialRouter)
 
+app.use(notFoundHandler)
 app.use(errorHandler)
 
 module.exports = app

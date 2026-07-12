@@ -1,6 +1,10 @@
 const ApiResponse = require('../lib/apiResponse')
 
 module.exports = (error, req, res, _next) => {
+    if (error.type === 'entity.parse.failed' || error instanceof SyntaxError) {
+        return ApiResponse.badRequest(res, 'Malformed JSON in request body')
+    }
+
     if (error.statusCode) {
         return res.status(error.statusCode).send(new ApiResponse(error.statusCode, 'failure', error.message))
     }
