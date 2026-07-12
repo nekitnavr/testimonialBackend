@@ -1,4 +1,5 @@
 const ApiResponse = require('../lib/apiResponse')
+const logger = require('../lib/logger')
 
 module.exports = (error, req, res, _next) => {
     if (error.type === 'entity.parse.failed' || error instanceof SyntaxError) {
@@ -23,6 +24,6 @@ module.exports = (error, req, res, _next) => {
         return ApiResponse.badRequest(res, `Invalid value for field ${error.path}`)
     }
 
-    console.error(error)
+    logger.error({ err: error, path: req.path, method: req.method }, 'Unhandled error')
     return ApiResponse.failure(res, 'Internal server error')
 }

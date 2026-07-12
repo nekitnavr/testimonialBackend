@@ -3,6 +3,7 @@ require('./lib/checkEnv')()
 
 const mongoose = require('mongoose')
 const app = require('./app')
+const logger = require('./lib/logger')
 
 const port = process.env.PORT || 3000
 
@@ -11,33 +12,33 @@ let server
 mongoose
     .connect(process.env.MONGODB_URI)
     .then(() => {
-        console.log('Connected to DB')
+        logger.info('Connected to DB')
 
         server = app.listen(port, () => {
-            console.log('App is listening on port ' + port)
+            logger.info('App is listening on port ' + port)
         })
     })
     .catch((err) => {
-        console.error('Failed to connect to MongoDB: ', err.message)
+        logger.error({ err }, 'Failed to connect to MongoDB: ')
         process.exit(1)
     })
 
 function shutdown(signal) {
-    console.log(`${signal} received, shutting down gracefully`)
+    logger.info(`${signal} received, shutting down gracefully`)
 
     if (!server) {
         process.exit(0)
     }
 
     server.close(async () => {
-        console.log('HTTP server closed')
+        logger.info('HTTP server closed')
         await mongoose.connection.close()
-        console.log('MongoDB connection closed')
+        logger.info('MongoDB connection closed')
         process.exit(0)
     })
 
     setTimeout(() => {
-        console.error('Forced shutdown after timeout')
+        logger.error('Forced shutdown after timeout')
         process.exit(1)
     }, 10000).unref()
 }

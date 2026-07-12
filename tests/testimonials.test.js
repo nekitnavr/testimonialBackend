@@ -331,6 +331,9 @@ describe('Additional edge cases', () => {
     it('does not leak internal error details on an unexpected 500', async () => {
         const token = await registerAndLogin('generic500@test.com')
 
+        const logger = require('../lib/logger')
+        jest.spyOn(logger, 'error').mockImplementation(() => {})
+
         const Testimonial = require('../models/testimonial')
         jest.spyOn(Testimonial, 'find').mockImplementation(() => {
             throw new Error('Internal DB connection string leaked: mongodb://secret')
