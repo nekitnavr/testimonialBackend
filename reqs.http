@@ -107,6 +107,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExLCJlb
 
 ###
 
-GET http://localhost:3000/api/testimonials/analytics? HTTP/1.1
+GET http://localhost:3000/api/testimonials/analytics?startDate=2026-01-01&endDate=2027-01-01 HTTP/1.1
 content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoic2lnbWEzM0B0aGluZy5jb20iLCJpYXQiOjE3ODMyNDU3NzIsImV4cCI6MTc4Mzg1MDU3Mn0.0nV00QwzxHWMjTvg75sAVrWQZIv0NSJrV3a09ixdMw8
