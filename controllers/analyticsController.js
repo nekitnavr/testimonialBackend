@@ -1,29 +1,11 @@
 const ApiResponse = require('../lib/apiResponse')
-const { getDateRange, getOverview } = require('../lib/utils')
+const { getAnalytics } = require('../services/analyticsService')
 
 async function getTestimonialAnalytics(req, res, next) {
     try {
-        let { startDate, endDate } = getDateRange(req.query.startDate, req.query.endDate)
+        const analytics = await getAnalytics(req.user.userId, { startDateStr: req.query.startDate, endDateStr: req.query.endDate })
 
-        startDate = startDate || new Date(0)
-        endDate = endDate || new Date()
-
-        const filter = {
-            isDeleted: false,
-            createdAt: {
-                $gte: startDate,
-                $lte: endDate,
-            },
-            userId: req.user.userId,
-        }
-
-        const overview = await getOverview(filter)
-        const data = {
-            overview: overview,
-            period: { startDate, endDate },
-        }
-
-        return ApiResponse.success(res, 'Fetched analytics successfully', data)
+        return ApiResponse.success(res, 'Fetched analytics successfully', analytics)
     } catch (error) {
         next(error)
     }

@@ -1,6 +1,6 @@
 const { randomUUID } = require('node:crypto')
 const Testimonial = require('../models/testimonial')
-const { canTransitionStatus } = require('../lib/utils')
+const { canTransitionStatus, mergeFields } = require('../lib/utils')
 const AppError = require('../lib/appError')
 
 async function createTestimonial(userId, data) {
@@ -48,14 +48,7 @@ async function getOwnedTestimonial(userId, testimonialId) {
 async function updateTestimonial(userId, testimonialId, updates) {
     const testimonial = await getOwnedTestimonial(userId, testimonialId)
 
-    Object.entries(updates).forEach(([field, value]) => {
-        const isPlainObject = value !== null && typeof value === 'object' && !Array.isArray(value)
-        if (isPlainObject && testimonial[field] && typeof testimonial[field] === 'object') {
-            Object.assign(testimonial[field], value)
-        } else {
-            testimonial[field] = value
-        }
-    })
+    mergeFields(testimonial, updates)
 
     await testimonial.save()
     return testimonial
