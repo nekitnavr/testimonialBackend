@@ -1,20 +1,9 @@
 const ApiResponse = require('../lib/apiResponse')
-const { allowedTestimonialSettings } = require('../lib/constants')
-const { setFieldsFromReq } = require('../lib/utils')
-const TestimonialSettings = require('../models/testimonialSettings')
+const { upsertSettings, getSettings } = require('../services/setttingsService')
 
 async function upsertTestimonialSettings(req, res, next) {
     try {
-        let isNew = false
-
-        let settings = await TestimonialSettings.findOne({ userId: req.user.userId })
-        if (!settings) {
-            settings = await new TestimonialSettings({ userId: req.user.userId })
-            isNew = true
-        }
-
-        setFieldsFromReq(req, settings, allowedTestimonialSettings)
-        await settings.save()
+        const { isNew } = await upsertSettings(req.user.userId, req.body)
 
         if (isNew) return ApiResponse.created(res, 'Created settings successfully')
         else return ApiResponse.success(res, 'Changed settings successfully')
@@ -25,12 +14,9 @@ async function upsertTestimonialSettings(req, res, next) {
 
 async function getTestimonialSettings(req, res, next) {
     try {
-        const settings = await TestimonialSettings.findOne({ userId: req.user.userId })
+        const settings = await getSettings(req.user.userId)
 
-        let data = settings
-        if (!settings) data = null
-
-        return ApiResponse.success(res, 'Fetched setttings successfully', data)
+        return ApiResponse.success(res, 'Fetched setttings successfully', settings || null)
     } catch (error) {
         next(error)
     }
