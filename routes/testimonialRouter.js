@@ -1,5 +1,7 @@
 const express = require('express')
 const testimonialController = require('../controllers/testimonialController')
+const analyticsController = require('../controllers/analyticsController')
+const settingsController = require('../controllers/settingsController')
 const validateSchema = require('../middleware/validateSchema')
 const {
     createTestimonialSchema,
@@ -12,9 +14,10 @@ const {
 } = require('../validation/validationSchemas')
 const router = express.Router()
 
-router.get('/analytics', validateSchema(getAnalyticsSchema), testimonialController.getTestimonialAnalytics)
-router.get('/settings', testimonialController.getTestimonialSettings)
-router.post('/settings', validateSchema(upsertTestimonialSettingsSchema), testimonialController.upsertTestimonialSettings)
+router.get('/analytics', validateSchema(getAnalyticsSchema), analyticsController.getTestimonialAnalytics)
+
+router.get('/settings', settingsController.getTestimonialSettings)
+router.post('/settings', validateSchema(upsertTestimonialSettingsSchema), settingsController.upsertTestimonialSettings)
 
 router.post('/', validateSchema(createTestimonialSchema), testimonialController.createTestimonial)
 router.get('/', validateSchema(getTestimonialsSchema), testimonialController.getTestimonials)

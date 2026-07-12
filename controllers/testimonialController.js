@@ -1,9 +1,8 @@
 const Testimonial = require('../models/testimonial')
 const ApiResponse = require('../lib/apiResponse')
 const { randomUUID } = require('node:crypto')
-const { allowedTestimonialSettings, allowedTestimonialFields } = require('../lib/constants')
-const TestimonialSettings = require('../models/testimonialSettings')
-const { findTestimonial, getDateRange, getOverview, setFieldsFromReq, canTransitionStatus } = require('../lib/utils')
+const { allowedTestimonialFields } = require('../lib/constants')
+const { findTestimonial, setFieldsFromReq, canTransitionStatus } = require('../lib/utils')
 const { matchedData } = require('express-validator')
 
 async function createTestimonial(req, res, next) {
@@ -152,69 +151,6 @@ async function shareTestimonial(req, res, next) {
     }
 }
 
-///
-async function upsertTestimonialSettings(req, res, next) {
-    try {
-        let isNew = false
-
-        let settings = await TestimonialSettings.findOne({ userId: req.user.userId })
-        if (!settings) {
-            settings = await new TestimonialSettings({ userId: req.user.userId })
-            isNew = true
-        }
-
-        setFieldsFromReq(req, settings, allowedTestimonialSettings)
-        await settings.save()
-
-        if (isNew) return ApiResponse.created(res, 'Created settings successfully')
-        else return ApiResponse.success(res, 'Changed settings successfully')
-    } catch (error) {
-        next(error)
-    }
-}
-
-async function getTestimonialSettings(req, res, next) {
-    try {
-        const settings = await TestimonialSettings.findOne({ userId: req.user.userId })
-
-        let data = settings
-        if (!settings) data = null
-
-        return ApiResponse.success(res, 'Fetched setttings successfully', data)
-    } catch (error) {
-        next(error)
-    }
-}
-
-///
-async function getTestimonialAnalytics(req, res, next) {
-    try {
-        let { startDate, endDate } = getDateRange(req.query.startDate, req.query.endDate)
-
-        startDate = startDate || new Date(0)
-        endDate = endDate || new Date()
-
-        const filter = {
-            isDeleted: false,
-            createdAt: {
-                $gte: startDate,
-                $lte: endDate,
-            },
-            userId: req.user.userId,
-        }
-
-        const overview = await getOverview(filter)
-        const data = {
-            overview: overview,
-            period: { startDate, endDate },
-        }
-
-        return ApiResponse.success(res, 'Fetched analytics successfully', data)
-    } catch (error) {
-        next(error)
-    }
-}
-
 module.exports = {
     createTestimonial,
     getTestimonials,
@@ -223,7 +159,4 @@ module.exports = {
     updateStatus,
     deleteTestimonial,
     shareTestimonial,
-    upsertTestimonialSettings,
-    getTestimonialSettings,
-    getTestimonialAnalytics,
 }
