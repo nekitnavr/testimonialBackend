@@ -5,13 +5,18 @@ module.exports.customerEmailRule = {
         errorMessage: 'Invalid email',
     },
     normalizeEmail: true,
+    isLength: {
+        max: 254,
+        errorMessage: 'customerEmail is too long',
+    },
 }
 
 module.exports.customerPhoneRule = {
     optional: true,
     isLength: {
         min: 9,
-        errorMessage: 'Phone numbers must be at lest 9 digits',
+        max: 20,
+        errorMessage: 'Phone numbers must be at least 9 and at most 20 digits',
     },
 }
 
@@ -41,4 +46,8 @@ module.exports.textRule = {
     optional: true,
     trim: true,
     isString: { errorMessage: 'text must be a string' },
+    isLength: {
+        max: 2000,
+        errorMessage: 'text must be at most 2000 characters',
+    },
 }

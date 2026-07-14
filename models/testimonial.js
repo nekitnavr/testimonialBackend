@@ -17,16 +17,19 @@ const testimonialSchema = new mongoose.Schema(
         customerName: {
             type: String,
             required: true,
+            maxlength: [200, 'customerName must be at most 200 characters'],
         },
         customerEmail: {
             type: String,
             required: false,
             lowercase: true,
             trim: true,
+            maxlength: [254, 'customerEmail is too long'],
         },
         customerPhone: {
             type: String,
             required: false,
+            maxlength: [20, 'customerPhone is too long'],
         },
         videoUrl: {
             type: String,
@@ -41,6 +44,7 @@ const testimonialSchema = new mongoose.Schema(
         text: {
             type: String,
             required: false,
+            maxlength: [2000, 'text must be at most 2000 characters'],
         },
         status: {
             type: String,

@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema(
         businessName: {
             type: String,
             required: true,
+            maxlength: [200, 'businessName must be at most 200 characters'],
         },
         role: {
             type: String,

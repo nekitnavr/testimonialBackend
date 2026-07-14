@@ -66,6 +66,10 @@ module.exports.createUserSchema = {
     businessName: {
         trim: true,
         notEmpty: { errorMessage: 'Business name must not be empty' },
+        isLength: {
+            max: 200,
+            errorMessage: 'businessName must be at most 200 characters',
+        },
     },
     role: {
         optional: true,
@@ -91,6 +95,10 @@ module.exports.createTestimonialSchema = {
     customerName: {
         trim: true,
         notEmpty: { errorMessage: 'Customer name must not be empty' },
+        isLength: {
+            max: 200,
+            errorMessage: 'customerName must be at most 200 characters',
+        },
     },
     customerEmail: customerEmailRule,
     customerPhone: customerPhoneRule,
