@@ -241,12 +241,12 @@ module.exports.upsertTestimonialSettingsSchema = {
             options: { min: 1 },
             errorMessage: 'sendingOptions must be an array with at least one element',
         },
-        checkChannels: {
-            custom: checkChannels,
+        custom: {
+            options: checkChannels,
             errorMessage: `Allowed sendingOptions: ${allowedChannels.join(', ')}.`,
         },
-        removeRepeatingChannels: {
-            customSanitizer: removeRepeatingChannels,
+        customSanitizer: {
+            options: removeRepeatingChannels,
         },
     },
     thankYouMessage: {

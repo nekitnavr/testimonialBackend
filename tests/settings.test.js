@@ -2,6 +2,8 @@ const request = require('supertest')
 const app = require('../app')
 const { connect, closeDatabase, clearDatabase } = require('./dbSetup')
 const { registerAndLogin } = require('./testHelpers')
+const TestimonialSettings = require('../models/testimonialSettings')
+const { verifyToken } = require('../lib/utils')
 
 beforeAll(async () => {
     await connect()
@@ -54,7 +56,7 @@ describe('POST /api/testimonials/settings', () => {
             .set('Authorization', `Bearer ${token}`)
             .send({ isEnabled: true, thankYouMessage: 'Thanks a lot!' })
 
-        expect(createRes.status).toBe(201)
+        expect(createRes.status).toBe(200)
 
         const updateRes = await request(app)
             .post('/api/testimonials/settings')
@@ -64,23 +66,39 @@ describe('POST /api/testimonials/settings', () => {
         expect(updateRes.status).toBe(200)
     })
 
-    it('merges contactConsent instead of overwriting it', async () => {
-        const token = await registerAndLogin('consentowner@test.com')
+    it('tries to insert userId, but it gets ignored', async () => {
+        const token = await registerAndLogin('settingsowner@test.com')
+
+        const { userId } = verifyToken(token)
+
+        const createRes = await request(app)
+            .post('/api/testimonials/settings')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ isEnabled: true, thankYouMessage: 'Thanks a lot!', userId: 99999 })
+
+        expect(createRes.status).toBe(200)
+        const settings = await TestimonialSettings.findOne({ userId })
+        expect(settings).toBeDefined()
+        expect(settings.userId).not.toBe(99999)
+    })
+
+    it('merges a partial contactConsent update without wiping sibling fields (via atomic upsert)', async () => {
+        const token = await registerAndLogin('atomicmerge@test.com')
 
         await request(app)
             .post('/api/testimonials/settings')
             .set('Authorization', `Bearer ${token}`)
-            .send({ contactConsent: { enabled: false } })
+            .send({ contactConsent: { enabled: false, text: 'Custom' } })
 
         await request(app)
             .post('/api/testimonials/settings')
             .set('Authorization', `Bearer ${token}`)
-            .send({ contactConsent: { text: 'New consent text' } })
+            .send({ contactConsent: { text: 'Updated' } })
 
         const res = await request(app).get('/api/testimonials/settings').set('Authorization', `Bearer ${token}`)
 
         expect(res.body.data.contactConsent.enabled).toBe(false)
-        expect(res.body.data.contactConsent.text).toBe('New consent text')
+        expect(res.body.data.contactConsent.text).toBe('Updated')
     })
 
     it('rejects empty videoLengthOptions array', async () => {

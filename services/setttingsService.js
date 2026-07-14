@@ -1,4 +1,4 @@
-const { mergeFields } = require('../lib/utils')
+const { flatten } = require('mongo-dot-notation')
 const TestimonialSettings = require('../models/testimonialSettings')
 
 /**
@@ -8,14 +8,20 @@ const TestimonialSettings = require('../models/testimonialSettings')
  * @returns {Object} {settings, isNew}
  */
 async function upsertSettings(userId, updates) {
-    let settings = await TestimonialSettings.findOne({ userId })
-    const isNew = !settings
-    if (isNew) settings = new TestimonialSettings({ userId })
+    const setFields = flatten(updates)
 
-    mergeFields(settings, updates)
-    await settings.save()
+    const settings = await TestimonialSettings.findOneAndUpdate(
+        { userId },
+        { ...setFields, $setOnInsert: { userId } },
+        {
+            upsert: true,
+            returnDocument: 'after',
+            runValidators: true,
+            setDefaultsOnInsert: true,
+        },
+    )
 
-    return { settings, isNew }
+    return settings
 }
 
 async function getSettings(userId) {

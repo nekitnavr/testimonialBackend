@@ -1,12 +1,12 @@
+const { matchedData } = require('express-validator')
 const ApiResponse = require('../lib/apiResponse')
 const { upsertSettings, getSettings } = require('../services/setttingsService')
 
 async function upsertTestimonialSettings(req, res, next) {
     try {
-        const { isNew } = await upsertSettings(req.user.userId, req.body)
-
-        if (isNew) return ApiResponse.created(res, 'Created settings successfully')
-        else return ApiResponse.success(res, 'Changed settings successfully')
+        const data = matchedData(req, { locations: ['body'] })
+        const settings = await upsertSettings(req.user.userId, data)
+        return ApiResponse.success(res, 'Settings saved successfully', settings)
     } catch (error) {
         next(error)
     }
