@@ -1,6 +1,6 @@
 const { matchedData } = require('express-validator')
 const ApiResponse = require('../lib/apiResponse')
-const { upsertSettings, getSettings } = require('../services/setttingsService')
+const { upsertSettings, getSettings } = require('../services/settingsService')
 
 async function upsertTestimonialSettings(req, res, next) {
     try {
