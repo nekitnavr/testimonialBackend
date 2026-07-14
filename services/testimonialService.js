@@ -46,6 +46,10 @@ async function getOwnedTestimonial(userId, testimonialId) {
 }
 
 async function updateTestimonial(userId, testimonialId, updates) {
+    if (Object.keys(updates).length === 0) {
+        throw new AppError('At least one field must be provided to update', 400)
+    }
+
     const testimonial = await getOwnedTestimonial(userId, testimonialId)
 
     mergeFields(testimonial, updates)

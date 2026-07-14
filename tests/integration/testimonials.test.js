@@ -1,8 +1,8 @@
 const request = require('supertest')
-const app = require('../app')
+const app = require('../../app')
 
-const { connect, clearDatabase, closeDatabase } = require('./dbSetup')
-const { registerAndLogin, createAndDelete } = require('./testHelpers')
+const { connect, clearDatabase, closeDatabase } = require('./setup/dbSetup')
+const { registerAndLogin, createAndDelete } = require('./setup/testHelpers')
 
 beforeAll(async () => {
     await connect()
@@ -225,6 +225,32 @@ describe('GET /api/testimonials (pagination and filters)', () => {
     })
 })
 
+describe('PUT /api/testimonials', () => {
+    it('rejects an empty body for testimonial update with 400 and explicit message', async () => {
+        const token = await registerAndLogin('emptyupdate@test.com')
+
+        await request(app)
+            .post('/api/testimonials')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ customerName: 'Update Me', rating: 3 })
+
+        const listRes = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
+        const testimonialId = listRes.body.data[0].testimonialId
+
+        const res = await request(app).put(`/api/testimonials/${testimonialId}`).set('Authorization', `Bearer ${token}`).send({})
+
+        expect(res.status).toBe(400)
+        expect(res.body).toMatchObject({
+            code: 400,
+            status: 'failure',
+        })
+
+        const Testimonial = require('../../models/testimonial')
+        const unchanged = await Testimonial.findOne({ testimonialId })
+        expect(unchanged.customerName).toBe('Update Me')
+    })
+})
+
 describe('Soft-deleted testimonial access', () => {
     it('returns 404 on GET for a soft-deleted testimonial', async () => {
         const token = await registerAndLogin('softget@test.com')
@@ -268,7 +294,7 @@ describe('Additional edge cases', () => {
             .post('/api/testimonials/settings')
             .set('Authorization', `Bearer ${token}`)
             .send({ sendingOptions: ['email', 'facebook'] })
-        expect(validRes.status).toBeLessThan(300)
+        expect(validRes.status).toBe(200)
 
         const invalidRes = await request(app)
             .post('/api/testimonials/settings')
@@ -303,7 +329,7 @@ describe('Additional edge cases', () => {
 
         const { byStatus, total, averageRating } = res.body.data.overview
 
-        const { statuses } = require('../lib/constants')
+        const { statuses } = require('../../lib/constants')
         statuses.forEach((status) => {
             expect(byStatus[status]).toBe(0)
         })
@@ -331,10 +357,10 @@ describe('Additional edge cases', () => {
     it('does not leak internal error details on an unexpected 500', async () => {
         const token = await registerAndLogin('generic500@test.com')
 
-        const logger = require('../lib/logger')
+        const logger = require('../../lib/logger')
         jest.spyOn(logger, 'error').mockImplementation(() => {})
 
-        const Testimonial = require('../models/testimonial')
+        const Testimonial = require('../../models/testimonial')
         jest.spyOn(Testimonial, 'find').mockImplementation(() => {
             throw new Error('Internal DB connection string leaked: mongodb://secret')
         })
@@ -342,7 +368,7 @@ describe('Additional edge cases', () => {
         const res = await request(app).get('/api/testimonials').set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(500)
-        expect(res.body.message).not.toMatch('Internal DB connection string leaked: mongodb://secret')
+        expect(res.body.message).toBe('Internal server error')
 
         jest.restoreAllMocks()
     })

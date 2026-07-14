@@ -1,8 +1,8 @@
 const request = require('supertest')
-const app = require('../app')
+const app = require('../../app')
 
-const { connect, clearDatabase, closeDatabase } = require('./dbSetup')
-const User = require('../models/user')
+const { connect, clearDatabase, closeDatabase } = require('./setup/dbSetup')
+const User = require('../../models/user')
 
 beforeAll(async () => {
     await connect()
@@ -61,7 +61,7 @@ describe('POST /api/auth/register', () => {
 
         expect(res.status).toBe(201)
 
-        const User = require('../models/user')
+        const User = require('../../models/user')
         const savedUser = await User.findOne({ email: 'norole@test.com' })
         expect(savedUser.role).toBe('owner')
     })

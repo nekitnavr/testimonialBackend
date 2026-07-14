@@ -1,4 +1,4 @@
-const { canTransitionStatus } = require('../lib/utils')
+const { canTransitionStatus } = require('../../lib/utils')
 
 describe('canTransitionStatus', () => {
     it('allows transition to the next status', () => {

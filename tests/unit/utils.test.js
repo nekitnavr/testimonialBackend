@@ -1,4 +1,4 @@
-const { mergeFields } = require('../lib/utils')
+const { mergeFields } = require('../../lib/utils')
 
 describe('mergeFields', () => {
     it('merges nested object fields without wiping unspecified subfields', () => {

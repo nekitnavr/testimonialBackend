@@ -1,9 +1,9 @@
 const request = require('supertest')
-const app = require('../app')
-const { connect, closeDatabase, clearDatabase } = require('./dbSetup')
-const { registerAndLogin } = require('./testHelpers')
-const TestimonialSettings = require('../models/testimonialSettings')
-const { verifyToken } = require('../lib/utils')
+const app = require('../../app')
+const { connect, closeDatabase, clearDatabase } = require('./setup/dbSetup')
+const { registerAndLogin } = require('./setup/testHelpers')
+const TestimonialSettings = require('../../models/testimonialSettings')
+const { verifyToken } = require('../../lib/utils')
 
 beforeAll(async () => {
     await connect()
@@ -19,28 +19,28 @@ afterAll(async () => {
 
 describe('DB level validation for testimonialSettings', () => {
     it('rejects negative defaultVideoLength at the model level even bypassing HTTP validation', async () => {
-        const TestimonialSettings = require('../models/testimonialSettings')
+        const TestimonialSettings = require('../../models/testimonialSettings')
 
         const settings = new TestimonialSettings({ userId: 1, defaultVideoLength: -5 })
         await expect(settings.validate()).rejects.toThrow()
     })
 
     it('rejects a non-positive integer in videoLengthOptions at the model level', async () => {
-        const TestimonialSettings = require('../models/testimonialSettings')
+        const TestimonialSettings = require('../../models/testimonialSettings')
 
         const settings = new TestimonialSettings({ userId: 1, videoLengthOptions: [5, -1, 10] })
         await expect(settings.validate()).rejects.toThrow()
     })
 
     it('rejects an invalid channel in sendingOptions at the model level', async () => {
-        const TestimonialSettings = require('../models/testimonialSettings')
+        const TestimonialSettings = require('../../models/testimonialSettings')
 
         const settings = new TestimonialSettings({ userId: 1, sendingOptions: ['carrier_pigeon'] })
         await expect(settings.validate()).rejects.toThrow()
     })
 
     it('rejects an empty string in questionnaire at the model level', async () => {
-        const TestimonialSettings = require('../models/testimonialSettings')
+        const TestimonialSettings = require('../../models/testimonialSettings')
 
         const settings = new TestimonialSettings({ userId: 1, questionnaire: ['Valid question', '   '] })
         await expect(settings.validate()).rejects.toThrow()
@@ -112,7 +112,7 @@ describe('POST /api/testimonials/settings', () => {
         expect(resA.status).not.toBe(500)
         expect(resB.status).not.toBe(500)
 
-        const TestimonialSettings = require('../models/testimonialSettings')
+        const TestimonialSettings = require('../../models/testimonialSettings')
         const count = await TestimonialSettings.countDocuments({})
         expect(count).toBe(1)
     })

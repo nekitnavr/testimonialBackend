@@ -1,7 +1,7 @@
 const request = require('supertest')
-const app = require('../app')
-const { connect, closeDatabase, clearDatabase } = require('./dbSetup')
-const { registerAndLogin } = require('./testHelpers')
+const app = require('../../app')
+const { connect, closeDatabase, clearDatabase } = require('./setup/dbSetup')
+const { registerAndLogin } = require('./setup/testHelpers')
 
 beforeAll(async () => {
     await connect()

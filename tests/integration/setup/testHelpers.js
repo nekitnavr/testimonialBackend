@@ -1,5 +1,5 @@
 const request = require('supertest')
-const app = require('../app')
+const app = require('../../../app')
 
 async function registerAndLogin(email = 'test@example.com', overrides = {}) {
     await request(app)

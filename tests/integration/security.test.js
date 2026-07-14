@@ -1,9 +1,9 @@
 const request = require('supertest')
-const app = require('../app')
-const { connect, closeDatabase, clearDatabase } = require('./dbSetup')
-const { registerAndLogin } = require('./testHelpers')
-const User = require('../models/user')
-const Testimonial = require('../models/testimonial')
+const app = require('../../app')
+const { connect, closeDatabase, clearDatabase } = require('./setup/dbSetup')
+const { registerAndLogin } = require('./setup/testHelpers')
+const User = require('../../models/user')
+const Testimonial = require('../../models/testimonial')
 
 beforeAll(async () => {
     await connect()
@@ -114,7 +114,7 @@ describe('errorHandler catches Mongoose errors correctly', () => {
         expect(res.status).toBe(400)
     })
 
-    it('returns 400 (not 500) on CastError from an invalid ObjectId-like param', async () => {
+    it('returns 400 on an invalid page number', async () => {
         const token = await registerAndLogin('casterror@test.com')
 
         const res = await request(app).get('/api/testimonials?page=not-a-number').set('Authorization', `Bearer ${token}`)

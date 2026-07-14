@@ -1,10 +1,10 @@
 const request = require('supertest')
-const app = require('../app')
+const app = require('../../app')
 const jwt = require('jsonwebtoken')
-const auth = require('../middleware/auth')
-const { connect, closeDatabase, clearDatabase } = require('./dbSetup')
-const { registerAndLogin } = require('./testHelpers')
-const User = require('../models/user')
+const auth = require('../../middleware/auth')
+const { connect, closeDatabase, clearDatabase } = require('./setup/dbSetup')
+const { registerAndLogin } = require('./setup/testHelpers')
+const User = require('../../models/user')
 
 function mockRes() {
     return {
