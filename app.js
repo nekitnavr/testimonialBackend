@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit')
 const ApiResponse = require('./lib/apiResponse')
 const errorHandler = require('./middleware/errorHandler')
 const notFoundHandler = require('./middleware/notFoundHandler')
+const pinoHttp = require('pino-http')
+const { randomUUID } = require('node:crypto')
+const logger = require('./lib/logger')
 
 const app = express()
 
@@ -18,6 +21,8 @@ const limiter = rateLimit({
     legacyHeaders: false,
     message: new ApiResponse(429, 'failure', 'Too many requests, please try again later.'),
 })
+
+app.use(pinoHttp({ logger, genReqId: (req) => req.headers['x-request-id'] || randomUUID() }))
 
 app.use('/api/auth', limiter, authRouter)
 app.use('/api/testimonials', auth, testimonialRouter)

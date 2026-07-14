@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000
 let server
 
 mongoose
-    .connect(process.env.MONGODB_URI)
+    .connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 })
     .then(() => {
         logger.info('Connected to DB')
 
@@ -32,8 +32,12 @@ function shutdown(signal) {
 
     server.close(async () => {
         logger.info('HTTP server closed')
-        await mongoose.connection.close()
-        logger.info('MongoDB connection closed')
+        try {
+            await mongoose.connection.close()
+            logger.info('MongoDB connection closed')
+        } catch (err) {
+            logger.error({ err }, 'Error closing MongoDB connection:')
+        }
         process.exit(0)
     })
 

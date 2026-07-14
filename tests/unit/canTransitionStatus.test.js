@@ -28,4 +28,9 @@ describe('canTransitionStatus', () => {
         expect(canTransitionStatus('draft', 'archived')).toBe(false)
         expect(canTransitionStatus('unknown', 'draft')).toBe(false)
     })
+
+    it('has no outgoing transitions from the terminal status', () => {
+        expect(canTransitionStatus('shared', 'draft')).toBe(false)
+        expect(canTransitionStatus('shared', 'recording')).toBe(false)
+    })
 })
