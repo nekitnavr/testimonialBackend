@@ -110,6 +110,7 @@ module.exports.getTestimonialsSchema = {
     },
     page: {
         optional: true,
+        toInt: true,
         isInt: {
             options: {
                 min: 1,
@@ -119,6 +120,7 @@ module.exports.getTestimonialsSchema = {
     },
     limit: {
         optional: true,
+        toInt: true,
         isInt: {
             options: {
                 min: 1,
@@ -221,7 +223,10 @@ module.exports.upsertTestimonialSettingsSchema = {
     },
     'videoLengthOptions.*': {
         isInt: {
-            errorMessage: 'Each videoLengthOptions value must be an integer',
+            isInt: {
+                options: { min: 1 },
+                errorMessage: 'Each value must be a positive integer',
+            },
         },
     },
     questionnaire: {
@@ -233,6 +238,8 @@ module.exports.upsertTestimonialSettingsSchema = {
     },
     'questionnaire.*': {
         optional: true,
+        trim: true,
+        notEmpty: { errorMessage: 'Questions must not be empty' },
         isString: { errorMessage: 'Each questionnaire value must be a string' },
     },
     sendingOptions: {

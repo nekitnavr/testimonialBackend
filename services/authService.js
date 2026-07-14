@@ -37,10 +37,10 @@ async function registerUser({ email, businessName, role, password }) {
  */
 async function loginUser({ email, password }) {
     const user = await User.findOne({ email })
-    if (!user) throw new AppError(`User doesn't exist`, 400)
+    if (!user || !user.isActive) throw new AppError(`Invalid email or password or is inactive`, 401)
 
     const isMatch = await bcrypt.compare(password, user.password)
-    if (!isMatch) throw new AppError('Wrong password', 401)
+    if (!isMatch) throw new AppError(`Invalid email or password or is inactive`, 401)
 
     return { token: signToken({ userId: user.userId, email: user.email }) }
 }

@@ -101,6 +101,22 @@ describe('POST /api/testimonials/settings', () => {
         expect(res.body.data.contactConsent.text).toBe('Updated')
     })
 
+    it('handles two simultaneous first-time upserts without a duplicate key crash', async () => {
+        const token = await registerAndLogin('settingsrace@test.com')
+
+        const [resA, resB] = await Promise.all([
+            request(app).post('/api/testimonials/settings').set('Authorization', `Bearer ${token}`).send({ defaultVideoLength: 15 }),
+            request(app).post('/api/testimonials/settings').set('Authorization', `Bearer ${token}`).send({ defaultVideoLength: 20 }),
+        ])
+
+        expect(resA.status).not.toBe(500)
+        expect(resB.status).not.toBe(500)
+
+        const TestimonialSettings = require('../models/testimonialSettings')
+        const count = await TestimonialSettings.countDocuments({})
+        expect(count).toBe(1)
+    })
+
     it('rejects empty videoLengthOptions array', async () => {
         const token = await registerAndLogin('emptyoptions@test.com')
 
