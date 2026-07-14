@@ -1,4 +1,4 @@
-const { mergeFields } = require('../../lib/utils')
+const { mergeFields, getDateRange } = require('../../lib/utils')
 
 describe('mergeFields', () => {
     it('merges nested object fields without wiping unspecified subfields', () => {
@@ -27,5 +27,19 @@ describe('mergeFields', () => {
         mergeFields(target, { settings: { enabled: true } })
 
         expect(target.settings).toEqual({ enabled: true })
+    })
+})
+
+describe('getDateRange', () => {
+    it('Invalid start date format', () => {
+        expect(() => getDateRange('invalid start date')).toThrow('Invalid start date format')
+    })
+
+    it('Invalid end date format', () => {
+        expect(() => getDateRange(new Date(), 'invalid end date')).toThrow('Invalid end date format')
+    })
+
+    it('startDate > endDate', () => {
+        expect(() => getDateRange(new Date(100), new Date(0))).toThrow('startDate must be earlier than or equal to endDate')
     })
 })
